@@ -1354,13 +1354,13 @@
 // CONFIG
 // ═══════════════════════════════════════════════
 let CFG = {
-  n8nUrl: 'https://dashboard.secura-protect.fr',
+  n8nUrl: 'https://n8n.secura-protect.fr',
   apiKey: localStorage.getItem('n8n_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkNjllODdiZC0xNzM1LTQ2MTItYTc1NS05Y2M0OTRiYjZkYTMiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzcxNTM4MTk1fQ.fPoApiQxUIoXcBShn0NuUzMM3wSrqAjndqmXyTZ6MSI',
   sheetId: localStorage.getItem('sheet_id') || '14bbhMYv0qy8mez4pDblcx4QsUWd-oWGGRamrfztmFcY',
   whProsp: '/webhook/trigger-prospection',
   whRelance: '/webhook/trigger-relance',
   whScraper: '/webhook/trigger-scraper',
-  whStats: '/n8n-proxy/get-stats'
+  whStats: '/webhook/get-stats'
 };
 
 let allData = [];
