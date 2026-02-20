@@ -1,0 +1,1991 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SECURA PROTECT – Dashboard Commercial</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c14;
+    --surface: #0d1420;
+    --surface2: #111927;
+    --border: rgba(255,255,255,0.07);
+    --border-glow: rgba(59,130,246,0.3);
+    --blue: #3b82f6;
+    --blue-dark: #1e3a8a;
+    --blue-bright: #60a5fa;
+    --green: #10b981;
+    --green-dim: #065f46;
+    --red: #ef4444;
+    --orange: #f59e0b;
+    --purple: #8b5cf6;
+    --text: #f1f5f9;
+    --text-dim: #64748b;
+    --text-mid: #94a3b8;
+    --glow: 0 0 40px rgba(59,130,246,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* BACKGROUND EFFECT */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -20%;
+    width: 70%;
+    height: 70%;
+    background: radial-gradient(ellipse, rgba(30,58,138,0.18) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -30%;
+    right: -10%;
+    width: 50%;
+    height: 50%;
+    background: radial-gradient(ellipse, rgba(16,185,129,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 72px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    z-index: 100;
+    gap: 8px;
+  }
+
+  .sidebar-logo {
+    width: 42px; height: 42px;
+    background: linear-gradient(135deg, var(--blue-dark), var(--blue));
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 0 20px rgba(59,130,246,0.3);
+  }
+
+  .nav-item {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.2s;
+    color: var(--text-dim);
+    border: 1px solid transparent;
+    position: relative;
+  }
+  .nav-item:hover, .nav-item.active {
+    background: rgba(59,130,246,0.15);
+    border-color: var(--border-glow);
+    color: var(--blue-bright);
+  }
+  .nav-item .tooltip {
+    position: absolute;
+    left: 58px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 12px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .nav-item:hover .tooltip { opacity: 1; }
+
+  .sidebar-bottom {
+    margin-top: auto;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+  }
+
+  /* STATUS DOT */
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.8); }
+  }
+
+  /* MAIN */
+  .main {
+    margin-left: 72px;
+    padding: 28px 32px;
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+  }
+
+  /* TOPBAR */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+  }
+
+  .topbar-left h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--text);
+  }
+  .topbar-left p {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .live-badge {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(16,185,129,0.1);
+    border: 1px solid rgba(16,185,129,0.2);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    color: var(--green);
+    font-weight: 500;
+  }
+
+  .btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 18px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--blue-dark), var(--blue));
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(59,130,246,0.3);
+  }
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(59,130,246,0.4);
+  }
+  .btn-ghost {
+    background: var(--surface2);
+    color: var(--text-mid);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { border-color: var(--border-glow); color: var(--text); }
+
+  .btn-danger {
+    background: rgba(239,68,68,0.15);
+    color: var(--red);
+    border: 1px solid rgba(239,68,68,0.2);
+  }
+  .btn-success {
+    background: rgba(16,185,129,0.15);
+    color: var(--green);
+    border: 1px solid rgba(16,185,129,0.2);
+  }
+  .btn-success:hover {
+    background: rgba(16,185,129,0.25);
+    box-shadow: 0 4px 16px rgba(16,185,129,0.2);
+    transform: translateY(-1px);
+  }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 28px;
+  }
+  .tab {
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--text-dim);
+    transition: all 0.2s;
+    border: 1px solid transparent;
+  }
+  .tab.active {
+    background: linear-gradient(135deg, var(--blue-dark), var(--blue));
+    color: #fff;
+    border-color: rgba(59,130,246,0.3);
+  }
+  .tab:hover:not(.active) { color: var(--text); background: var(--surface2); }
+
+  /* PANEL */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* KPI GRID */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .kpi-card:hover {
+    border-color: var(--border-glow);
+    box-shadow: var(--glow);
+  }
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    opacity: 0.08;
+    transform: translate(20px, -20px);
+  }
+  .kpi-card.blue::before { background: var(--blue); }
+  .kpi-card.green::before { background: var(--green); }
+  .kpi-card.orange::before { background: var(--orange); }
+  .kpi-card.purple::before { background: var(--purple); }
+
+  .kpi-icon {
+    font-size: 20px;
+    margin-bottom: 12px;
+    display: block;
+  }
+  .kpi-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .kpi-card.blue .kpi-val { color: var(--blue-bright); }
+  .kpi-card.green .kpi-val { color: var(--green); }
+  .kpi-card.orange .kpi-val { color: var(--orange); }
+  .kpi-card.purple .kpi-val { color: var(--purple); }
+
+  .kpi-label {
+    font-size: 12px;
+    color: var(--text-dim);
+    font-weight: 400;
+  }
+  .kpi-trend {
+    position: absolute;
+    top: 20px; right: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+  .trend-up { background: rgba(16,185,129,0.15); color: var(--green); }
+  .trend-down { background: rgba(239,68,68,0.15); color: var(--red); }
+  .trend-neu { background: rgba(100,116,139,0.15); color: var(--text-dim); }
+
+  /* GRID 2 COL */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .grid-3 {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  /* CARD */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 22px;
+    transition: border-color 0.3s;
+  }
+  .card:hover { border-color: rgba(255,255,255,0.1); }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-badge {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+    background: rgba(59,130,246,0.15);
+    color: var(--blue-bright);
+    border: 1px solid rgba(59,130,246,0.2);
+  }
+
+  /* FUNNEL */
+  .funnel {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .funnel-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .funnel-label {
+    width: 100px;
+    font-size: 12px;
+    color: var(--text-dim);
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .funnel-bar-wrap {
+    flex: 1;
+    height: 28px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+  }
+  .funnel-bar {
+    height: 100%;
+    border-radius: 6px;
+    display: flex; align-items: center;
+    padding: 0 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+    transition: width 1s ease;
+  }
+  .funnel-count {
+    width: 50px;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* PROGRESS RING */
+  .ring-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 0;
+  }
+  .ring-svg { transform: rotate(-90deg); }
+  .ring-bg { fill: none; stroke: rgba(255,255,255,0.06); }
+  .ring-fill {
+    fill: none;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1.2s ease;
+  }
+  .ring-center {
+    position: absolute;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .ring-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+  }
+  .ring-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+  .ring-container { position: relative; display: flex; align-items: center; justify-content: center; }
+
+  /* SEQUENCE STEPS */
+  .seq-steps {
+    display: flex;
+    gap: 0;
+    align-items: stretch;
+    margin-bottom: 14px;
+  }
+  .seq-step {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 12px;
+    text-align: center;
+    position: relative;
+  }
+  .seq-step + .seq-step::before {
+    content: '→';
+    position: absolute;
+    left: -13px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-dim);
+    font-size: 14px;
+    z-index: 2;
+  }
+  .seq-step + .seq-step { margin-left: 18px; }
+  .seq-icon { font-size: 22px; display: block; margin-bottom: 6px; }
+  .seq-label { font-size: 11px; color: var(--text-dim); margin-bottom: 6px; font-weight: 500; }
+  .seq-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+  }
+  .seq-step.s1 .seq-num { color: #f87171; }
+  .seq-step.s2 .seq-num { color: var(--blue-bright); }
+  .seq-step.s3 .seq-num { color: var(--green); }
+  .seq-day { font-size: 10px; color: var(--text-dim); margin-top: 4px; }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 11px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    vertical-align: middle;
+  }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  tr:last-child td { border-bottom: none; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .badge-blue { background: rgba(59,130,246,0.15); color: var(--blue-bright); }
+  .badge-green { background: rgba(16,185,129,0.15); color: var(--green); }
+  .badge-red { background: rgba(239,68,68,0.15); color: var(--red); }
+  .badge-orange { background: rgba(245,158,11,0.15); color: var(--orange); }
+  .badge-gray { background: rgba(100,116,139,0.15); color: var(--text-dim); }
+  .badge-purple { background: rgba(139,92,246,0.15); color: var(--purple); }
+
+  .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+  .dot-green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .dot-red { background: var(--red); }
+  .dot-orange { background: var(--orange); }
+  .dot-blue { background: var(--blue); }
+  .dot-gray { background: var(--text-dim); }
+
+  /* CHART BAR */
+  .bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    height: 100px;
+    padding-top: 10px;
+  }
+  .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .bar {
+    width: 100%;
+    border-radius: 4px 4px 0 0;
+    transition: height 1s ease, opacity 0.3s;
+    cursor: pointer;
+    position: relative;
+  }
+  .bar:hover { opacity: 0.8; }
+  .bar-blue { background: linear-gradient(180deg, var(--blue), var(--blue-dark)); }
+  .bar-green { background: linear-gradient(180deg, var(--green), var(--green-dim)); }
+  .bar-label { font-size: 10px; color: var(--text-dim); }
+  .bar-val { font-size: 11px; font-weight: 600; color: var(--text-mid); }
+
+  /* CAMPAIGN PANEL */
+  .campaign-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 12px;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .campaign-card:hover { border-color: var(--border-glow); transform: translateX(3px); }
+  .campaign-card.running { border-color: rgba(16,185,129,0.25); }
+
+  .camp-header {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;
+  }
+  .camp-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .camp-progress {
+    height: 4px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+  .camp-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--blue-dark), var(--blue));
+    border-radius: 2px;
+    transition: width 1s ease;
+  }
+  .camp-stats {
+    display: flex; gap: 20px;
+  }
+  .camp-stat { font-size: 12px; color: var(--text-dim); }
+  .camp-stat strong { color: var(--text); font-weight: 600; }
+
+  /* LAUNCH PANEL */
+  .launch-form {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 20px;
+  }
+  .form-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  label { font-size: 12px; color: var(--text-dim); font-weight: 500; }
+  input, select, textarea {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+  }
+  select option { background: var(--surface2); }
+  textarea { resize: vertical; min-height: 80px; }
+
+  .form-full { grid-column: 1 / -1; }
+  .form-actions { display: flex; gap: 10px; align-items: center; }
+
+  /* PRODUCT CARDS */
+  .product-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 20px; }
+  .product-card {
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .product-card.selected { border-color: var(--blue); background: rgba(59,130,246,0.08); }
+  .product-card:hover:not(.selected) { border-color: rgba(255,255,255,0.15); }
+  .prod-icon { font-size: 30px; display: block; margin-bottom: 8px; }
+  .prod-name { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .prod-desc { font-size: 11px; color: var(--text-dim); }
+
+  /* LOGS */
+  .log-stream {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    max-height: 200px;
+    overflow-y: auto;
+    line-height: 1.7;
+  }
+  .log-line { color: var(--text-dim); }
+  .log-line.success { color: var(--green); }
+  .log-line.info { color: var(--blue-bright); }
+  .log-line.warn { color: var(--orange); }
+  .log-line.error { color: var(--red); }
+
+  /* LEADS TABLE */
+  .lead-row td:first-child { font-weight: 600; }
+  .avatar {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    margin-right: 8px;
+  }
+
+  /* NOTIFICATION */
+  .notif {
+    position: fixed;
+    top: 20px; right: 20px;
+    background: var(--surface);
+    border: 1px solid var(--green);
+    border-radius: 12px;
+    padding: 14px 18px;
+    font-size: 13px;
+    z-index: 999;
+    display: flex; align-items: center; gap: 10px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 20px rgba(16,185,129,0.1);
+    transform: translateX(120%);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .notif.show { transform: translateX(0); }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(6px);
+    z-index: 200;
+    display: none; align-items: center; justify-content: center;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    width: 520px;
+    max-width: 90vw;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+    animation: modal-in 0.3s ease;
+  }
+  @keyframes modal-in {
+    from { opacity:0; transform: scale(0.95) translateY(10px); }
+    to { opacity:1; transform: scale(1) translateY(0); }
+  }
+  .modal-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+  .modal-sub { font-size: 13px; color: var(--text-dim); margin-bottom: 24px; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 24px; justify-content: flex-end; }
+
+  /* SCROLL */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ANIMATE */
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .anim { animation: fade-up 0.5s ease both; }
+  .anim-1 { animation-delay: 0.05s; }
+  .anim-2 { animation-delay: 0.1s; }
+  .anim-3 { animation-delay: 0.15s; }
+  .anim-4 { animation-delay: 0.2s; }
+
+  /* RESPONSIVE */
+  @media (max-width: 1100px) {
+    .kpi-grid { grid-template-columns: repeat(2,1fr); }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .product-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* TICKER */
+  .ticker {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 16px;
+    background: rgba(16,185,129,0.08);
+    border: 1px solid rgba(16,185,129,0.15);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--green);
+    overflow: hidden;
+    max-width: 360px;
+  }
+  .ticker-inner { white-space: nowrap; animation: ticker-scroll 18s linear infinite; }
+  @keyframes ticker-scroll {
+    from { transform: translateX(100%); }
+    to { transform: translateX(-100%); }
+  }
+
+  /* SEPARATOR */
+  .sep { height: 1px; background: var(--border); margin: 20px 0; }
+
+  /* STAT ROW */
+  .stat-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-row-label { font-size: 13px; color: var(--text-mid); display: flex; align-items: center; gap: 8px; }
+  .stat-row-val { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; }
+
+  /* CONFIG BANNER */
+  .config-banner {
+    background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(245,158,11,0.05));
+    border: 1px solid rgba(245,158,11,0.25);
+    border-radius: 12px;
+    padding: 14px 18px;
+    font-size: 13px;
+    color: var(--orange);
+    margin-bottom: 20px;
+    display: flex; align-items: center; gap: 10px;
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">🛡️</div>
+  <div class="nav-item active" onclick="showPanel('overview')">
+    📊<span class="tooltip">Vue d'ensemble</span>
+  </div>
+  <div class="nav-item" onclick="showPanel('campaigns')">
+    📧<span class="tooltip">Campagnes</span>
+  </div>
+  <div class="nav-item" onclick="showPanel('leads')">
+    👥<span class="tooltip">Leads</span>
+  </div>
+  <div class="nav-item" onclick="showPanel('launch')">
+    🚀<span class="tooltip">Lancer campagne</span>
+  </div>
+  <div class="nav-item" onclick="showPanel('settings')">
+    ⚙️<span class="tooltip">Paramètres</span>
+  </div>
+  <div class="sidebar-bottom">
+    <div class="status-dot" title="Workflow actif"></div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>Dashboard Commercial</h1>
+      <p id="last-update">Chargement des données...</p>
+    </div>
+    <div class="topbar-right">
+      <div class="ticker">
+        <span>●</span>
+        <span class="ticker-inner" id="ticker-text">Workflow actif · Prochaine exécution 8h00 · Connexion n8n OK</span>
+      </div>
+      <div class="live-badge"><span class="dot dot-green"></span> LIVE</div>
+      <button class="btn btn-ghost" onclick="refreshData()">↻ Actualiser</button>
+      <button class="btn btn-primary" onclick="showPanel('launch')">🚀 Nouvelle campagne</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ OVERVIEW ═══════════════════ -->
+  <div id="panel-overview" class="panel active">
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <div class="kpi-card blue anim anim-1">
+        <span class="kpi-icon">📬</span>
+        <div class="kpi-val" id="kpi-total">—</div>
+        <div class="kpi-label">Total envoyés</div>
+        <span class="kpi-trend trend-up" id="kpi-total-trend">+0 sem.</span>
+      </div>
+      <div class="kpi-card green anim anim-2">
+        <span class="kpi-icon">👁️</span>
+        <div class="kpi-val" id="kpi-ouverts">—</div>
+        <div class="kpi-label">Emails ouverts</div>
+        <span class="kpi-trend trend-up" id="kpi-taux">0%</span>
+      </div>
+      <div class="kpi-card orange anim anim-3">
+        <span class="kpi-icon">🔁</span>
+        <div class="kpi-val" id="kpi-relances">—</div>
+        <div class="kpi-label">Relances envoyées</div>
+        <span class="kpi-trend trend-neu" id="kpi-relance-trend">—</span>
+      </div>
+      <div class="kpi-card purple anim anim-4">
+        <span class="kpi-icon">🎯</span>
+        <div class="kpi-val" id="kpi-leads">—</div>
+        <div class="kpi-label">Leads actifs</div>
+        <span class="kpi-trend trend-up" id="kpi-conv">0%</span>
+      </div>
+    </div>
+
+    <!-- ROW 2 -->
+    <div class="grid-3">
+      <!-- FUNNEL -->
+      <div class="card anim anim-2">
+        <div class="card-header">
+          <div class="card-title">🔽 Entonnoir de conversion</div>
+          <span class="card-badge">Cumul total</span>
+        </div>
+        <div class="funnel" id="funnel-container">
+          <div class="funnel-row">
+            <span class="funnel-label">Nouveaux</span>
+            <div class="funnel-bar-wrap">
+              <div class="funnel-bar" id="f-nouveau" style="background:linear-gradient(90deg,#3b82f6,#60a5fa);width:100%">prospects</div>
+            </div>
+            <span class="funnel-count" id="fc-nouveau" style="color:var(--blue-bright)">—</span>
+          </div>
+          <div class="funnel-row">
+            <span class="funnel-label">Envoyés</span>
+            <div class="funnel-bar-wrap">
+              <div class="funnel-bar" id="f-envoye" style="background:linear-gradient(90deg,#8b5cf6,#a78bfa);width:85%">envoyés</div>
+            </div>
+            <span class="funnel-count" id="fc-envoye" style="color:var(--purple)">—</span>
+          </div>
+          <div class="funnel-row">
+            <span class="funnel-label">Ouverts</span>
+            <div class="funnel-bar-wrap">
+              <div class="funnel-bar" id="f-ouvert" style="background:linear-gradient(90deg,#f59e0b,#fbbf24);width:40%">ouverts</div>
+            </div>
+            <span class="funnel-count" id="fc-ouvert" style="color:var(--orange)">—</span>
+          </div>
+          <div class="funnel-row">
+            <span class="funnel-label">Relancés</span>
+            <div class="funnel-bar-wrap">
+              <div class="funnel-bar" id="f-relance" style="background:linear-gradient(90deg,#ef4444,#f87171);width:25%">relancés</div>
+            </div>
+            <span class="funnel-count" id="fc-relance" style="color:var(--red)">—</span>
+          </div>
+          <div class="funnel-row">
+            <span class="funnel-label">Leads</span>
+            <div class="funnel-bar-wrap">
+              <div class="funnel-bar" id="f-lead" style="background:linear-gradient(90deg,#10b981,#34d399);width:10%">convertis</div>
+            </div>
+            <span class="funnel-count" id="fc-lead" style="color:var(--green)">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAUX OUVERTURE RING -->
+      <div class="card anim anim-3" style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+        <div class="card-header" style="width:100%">
+          <div class="card-title">📈 Taux ouverture</div>
+        </div>
+        <div class="ring-container" style="width:160px;height:160px;">
+          <svg class="ring-svg" width="160" height="160" viewBox="0 0 160 160">
+            <circle class="ring-bg" cx="80" cy="80" r="64" stroke-width="10"/>
+            <circle class="ring-fill" id="ring-circle" cx="80" cy="80" r="64"
+              stroke="url(#ringGrad)" stroke-width="10"
+              stroke-dasharray="402"
+              stroke-dashoffset="402"/>
+            <defs>
+              <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#1e3a8a"/>
+                <stop offset="100%" stop-color="#10b981"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="ring-center">
+            <span class="ring-val" id="ring-val" style="color:var(--green)">—</span>
+            <span class="ring-sub">ouverture</span>
+          </div>
+        </div>
+        <div style="margin-top:16px;width:100%">
+          <div class="stat-row">
+            <span class="stat-row-label"><span class="dot dot-green"></span>Ouverts</span>
+            <span class="stat-row-val" id="stat-ouverts" style="color:var(--green)">—</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-row-label"><span class="dot dot-gray"></span>Non ouverts</span>
+            <span class="stat-row-val" id="stat-non-ouverts" style="color:var(--text-dim)">—</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-row-label"><span class="dot dot-red"></span>Désinscrits</span>
+            <span class="stat-row-val" id="stat-desinscrits" style="color:var(--red)">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SÉQUENCE + CHART -->
+    <div style="display:block;width:100%;">
+      <div class="card anim anim-2">
+        <div class="card-header">
+          <div class="card-title">🔄 Séquence Produits</div>
+          <span class="card-badge">J0 · J+3 · J+6</span>
+        </div>
+        <div class="seq-steps">
+          <div class="seq-step s1">
+            <span class="seq-icon">🚨</span>
+            <div class="seq-label">Email Alarme</div>
+            <div class="seq-num" id="seq-1">—</div>
+            <div class="seq-day">J0</div>
+          </div>
+          <div class="seq-step s2">
+            <span class="seq-icon">📹</span>
+            <div class="seq-label">Email Vidéo</div>
+            <div class="seq-num" id="seq-2">—</div>
+            <div class="seq-day">J+3</div>
+          </div>
+          <div class="seq-step s3">
+            <span class="seq-icon">🔐</span>
+            <div class="seq-label">Email Accès</div>
+            <div class="seq-num" id="seq-3">—</div>
+            <div class="seq-day">J+6</div>
+          </div>
+        </div>
+        <div style="margin-top:14px;">
+        <div class="seq-steps" style="flex-wrap:wrap;margin-top:14px;">
+          <div class="seq-step s1"><span class="seq-icon">📍</span><div class="seq-label">91 – Essonne</div><div class="seq-num" id="dept-91">—</div></div>
+          <div class="seq-step s2"><span class="seq-icon">📍</span><div class="seq-label">94 – Val-de-Marne</div><div class="seq-num" id="dept-94">—</div></div>
+          <div class="seq-step s3"><span class="seq-icon">📍</span><div class="seq-label">95 – Val-d'Oise</div><div class="seq-num" id="dept-95">—</div></div>
+          <div class="seq-step s1"><span class="seq-icon">📍</span><div class="seq-label">75 – Paris</div><div class="seq-num" id="dept-75">—</div></div>
+          <div class="seq-step s2"><span class="seq-icon">📍</span><div class="seq-label">77 – Seine-et-Marne</div><div class="seq-num" id="dept-77">—</div></div>
+          <div class="seq-step s3"><span class="seq-icon">📍</span><div class="seq-label">78 – Yvelines</div><div class="seq-num" id="dept-78">—</div></div>
+          <div class="seq-step s1"><span class="seq-icon">📍</span><div class="seq-label">92 – Hauts-de-Seine</div><div class="seq-num" id="dept-92">—</div></div>
+          <div class="seq-step s2"><span class="seq-icon">📍</span><div class="seq-label">93 – Seine-Saint-Denis</div><div class="seq-num" id="dept-93">—</div></div>
+          <div class="seq-step s3"><span class="seq-icon">📍</span><div class="seq-label">45 – Loiret</div><div class="seq-num" id="dept-45">—</div></div>
+        </div>
+          </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card anim anim-3">
+        <div class="card-header">
+          <div class="card-title">📊 Envois / semaine</div>
+          <span class="card-badge" id="week-label">7 derniers jours</span>
+        </div>
+        <div class="bar-chart" id="bar-chart">
+          <!-- Généré par JS -->
+        </div>
+        <div style="display:flex;gap:16px;margin-top:14px;">
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-dim);">
+            <div style="width:10px;height:10px;background:var(--blue);border-radius:2px;"></div>Envoyés
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-dim);">
+            <div style="width:10px;height:10px;background:var(--green);border-radius:2px;"></div>Ouverts
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DERNIÈRES OUVERTURES -->
+    <div class="card anim anim-3">
+      <div class="card-header">
+        <div class="card-title">🔥 Dernières ouvertures – Prospects chauds</div>
+        <button class="btn btn-ghost" style="font-size:12px;padding:5px 12px;" onclick="showPanel('leads')">Voir tous →</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Entreprise</th>
+              <th>Email</th>
+              <th>Secteur</th>
+              <th>Dept</th>
+              <th>Ouvert le</th>
+              <th>Campagne</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="recent-opens-tbody">
+            <tr><td colspan="7" style="text-align:center;color:var(--text-dim);padding:24px;">Chargement...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ CAMPAIGNS ═══════════════════ -->
+  <div id="panel-campaigns" class="panel">
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-header">
+        <div class="card-title">📧 Campagnes actives</div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-ghost" style="font-size:12px;padding:6px 12px;" onclick="refreshData()">↻ Rafraîchir</button>
+          <button class="btn btn-success" onclick="triggerWorkflow('prospection')">▶ Lancer prospection maintenant</button>
+        </div>
+      </div>
+      <div id="campaigns-list">
+        <!-- Généré par JS -->
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📋 Statuts détaillés</div>
+        <span class="card-badge" id="total-badge">— prospects</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Entreprise</th>
+              <th>Email</th>
+              <th>Secteur</th>
+              <th>Dept</th>
+              <th>Statut</th>
+              <th>Ouverture</th>
+              <th>Relances</th>
+              <th>Séq.</th>
+              <th>Envoyé le</th>
+            </tr>
+          </thead>
+          <tbody id="all-prospects-tbody">
+            <tr><td colspan="9" style="text-align:center;color:var(--text-dim);padding:24px;">Chargement...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ LEADS ═══════════════════ -->
+  <div id="panel-leads" class="panel">
+    <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px;">
+      <div class="kpi-card green">
+        <span class="kpi-icon">🔥</span>
+        <div class="kpi-val" id="leads-hot">—</div>
+        <div class="kpi-label">Prospects chauds (ouverts)</div>
+      </div>
+      <div class="kpi-card orange">
+        <span class="kpi-icon">⏳</span>
+        <div class="kpi-val" id="leads-warm">—</div>
+        <div class="kpi-label">En attente de relance</div>
+      </div>
+      <div class="kpi-card blue">
+        <span class="kpi-icon">📭</span>
+        <div class="kpi-val" id="leads-cold">—</div>
+        <div class="kpi-label">Non ouverts confirmés</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">👥 Tous les leads</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="text" placeholder="🔍 Rechercher..." style="width:200px;padding:6px 12px;font-size:12px;" oninput="filterLeads(this.value)">
+          <select onchange="filterLeadsByStatus(this.value)" style="width:150px;font-size:12px;padding:6px 10px;">
+            <option value="">Tous les statuts</option>
+            <option value="ouvert">Ouverts ✅</option>
+            <option value="envoye">Envoyés</option>
+            <option value="relance">Relancés</option>
+            <option value="non_ouvert">Non ouverts</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Entreprise</th>
+              <th>Contact</th>
+              <th>Téléphone</th>
+              <th>Secteur / Dept</th>
+              <th>Statut</th>
+              <th>Ouverture</th>
+              <th>Séquence</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="leads-tbody">
+            <tr><td colspan="8" style="text-align:center;color:var(--text-dim);padding:24px;">Chargement...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ LAUNCH ═══════════════════ -->
+  <div id="panel-launch" class="panel">
+    <div class="config-banner">
+      ⚠️ Connecté à <strong>n8n.secura-protect.fr</strong> · Les webhooks déclenchent les workflows directement
+    </div>
+
+    <!-- LANCEMENT RAPIDE -->
+    <div class="launch-form">
+      <div class="form-title">⚡ Lancement rapide</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+        <button class="btn btn-success" style="padding:16px;font-size:14px;justify-content:center;" onclick="triggerWorkflow('prospection')">
+          📧 Prospection maintenant
+        </button>
+        <button class="btn btn-ghost" style="padding:16px;font-size:14px;justify-content:center;border-color:var(--orange);color:var(--orange);" onclick="triggerWorkflow('relance')">
+          🔁 Relances maintenant
+        </button>
+        <button class="btn btn-ghost" style="padding:16px;font-size:14px;justify-content:center;border-color:var(--blue);color:var(--blue-bright);" onclick="triggerWorkflow('scraper')">
+          🌐 Scraper prospects
+        </button>
+      </div>
+    </div>
+
+    <!-- CAMPAGNE PERSONNALISÉE -->
+    <div class="launch-form">
+      <div class="form-title">🎯 Campagne personnalisée</div>
+
+      <div style="margin-bottom:16px;">
+        <label style="margin-bottom:10px;display:block;">Produit à promouvoir</label>
+        <div class="product-grid">
+          <div class="product-card selected" onclick="selectProduct(this,'alarme')">
+            <span class="prod-icon">🚨</span>
+            <div class="prod-name">Alarme</div>
+            <div class="prod-desc">Ajax Systems<br>Anti-intrusion</div>
+          </div>
+          <div class="product-card" onclick="selectProduct(this,'video')">
+            <span class="prod-icon">📹</span>
+            <div class="prod-name">Vidéosurveillance</div>
+            <div class="prod-desc">Dahua / Hikvision<br>Caméras IP HD</div>
+          </div>
+          <div class="product-card" onclick="selectProduct(this,'acces')">
+            <span class="prod-icon">🔐</span>
+            <div class="prod-name">Contrôle d'accès</div>
+            <div class="prod-desc">Badge / Biométrie<br>Digicode</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Département cible</label>
+          <select id="camp-dept">
+            <option value="all">Tous (91 + 94 + 95)</option>
+            <option value="91">91 – Essonne</option>
+            <option value="94">94 – Val-de-Marne</option>
+            <option value="95">95 – Val-d'Oise</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Secteur cible</label>
+          <select id="camp-secteur">
+            <option value="all">Tous les secteurs</option>
+            <option value="Commerce">Commerce / Retail</option>
+            <option value="Industrie">Industrie / Logistique</option>
+            <option value="Restauration">Restauration / Hôtellerie</option>
+            <option value="Immobilier">Immobilier / Syndic</option>
+            <option value="Sante">Santé / Pharmacie</option>
+            <option value="Services">Services aux entreprises</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Nombre max d'envois</label>
+          <input type="number" id="camp-limite" value="40" min="1" max="100">
+        </div>
+        <div class="form-group">
+          <label>Heure d'envoi</label>
+          <input type="time" id="camp-heure" value="08:00">
+        </div>
+        <div class="form-group form-full">
+          <label>Objet de l'email (personnalisé)</label>
+          <input type="text" id="camp-objet" placeholder="Laissez vide pour utiliser le sujet automatique...">
+        </div>
+        <div class="form-group form-full">
+          <label>Message personnalisé (optionnel)</label>
+          <textarea id="camp-message" placeholder="Ajoutez un message personnalisé ou une offre spéciale..."></textarea>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="launchCustomCampaign()" style="padding:12px 28px;font-size:14px;">
+          🚀 Lancer la campagne
+        </button>
+        <button class="btn btn-ghost" onclick="previewCampaign()">👁️ Prévisualiser</button>
+        <span style="font-size:12px;color:var(--text-dim);margin-left:8px;" id="camp-status"></span>
+      </div>
+    </div>
+
+    <!-- LOGS -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🖥️ Logs en temps réel</div>
+        <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px;" onclick="clearLogs()">Effacer</button>
+      </div>
+      <div class="log-stream" id="log-stream">
+        <div class="log-line info">[ Dashboard SECURA PROTECT v2.0 ]</div>
+        <div class="log-line">[ Connexion à n8n.secura-protect.fr... ]</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ SETTINGS ═══════════════════ -->
+  <div id="panel-settings" class="panel">
+    <div class="launch-form">
+      <div class="form-title">⚙️ Configuration n8n & API</div>
+      <div class="form-grid">
+        <div class="form-group form-full">
+          <label>URL de votre instance n8n</label>
+          <input type="url" id="cfg-n8n-url" value="https://n8n.secura-protect.fr">
+        </div>
+        <div class="form-group form-full">
+          <label>Clé API n8n (Bearer token)</label>
+          <input type="password" id="cfg-api-key" placeholder="eyJhbGciOiJIUzI1NiIs...">
+        </div>
+        <div class="form-group">
+          <label>Webhook prospection</label>
+          <input type="text" id="cfg-wh-prosp" value="/webhook/trigger-prospection">
+        </div>
+        <div class="form-group">
+          <label>Webhook relances</label>
+          <input type="text" id="cfg-wh-relance" value="/webhook/trigger-relance">
+        </div>
+        <div class="form-group">
+          <label>Webhook scraper</label>
+          <input type="text" id="cfg-wh-scraper" value="/webhook/trigger-scraper">
+        </div>
+        <div class="form-group">
+          <label>Webhook stats</label>
+          <input type="text" id="cfg-wh-stats" value="/webhook/get-stats">
+        </div>
+        <div class="form-group form-full">
+          <label>ID Google Sheet (Envois)</label>
+          <input type="text" id="cfg-sheet-id" value="14bbhMYv0qy8mez4pDblcx4QsUWd-oWGGRamrfztmFcY">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="saveConfig()">💾 Sauvegarder</button>
+        <button class="btn btn-ghost" onclick="testConnection()">🔌 Tester la connexion</button>
+        <span id="cfg-status" style="font-size:12px;color:var(--text-dim);margin-left:8px;"></span>
+      </div>
+    </div>
+
+    <div class="launch-form">
+      <div class="form-title">📊 Planification automatique</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Scraper (lundi)</label>
+          <input type="time" value="06:00">
+        </div>
+        <div class="form-group">
+          <label>Prospection (lun-ven)</label>
+          <input type="time" value="08:00">
+        </div>
+        <div class="form-group">
+          <label>Relances (lun-ven)</label>
+          <input type="time" value="08:00">
+        </div>
+        <div class="form-group">
+          <label>Rapport hebdo (lundi)</label>
+          <input type="time" value="07:00">
+        </div>
+        <div class="form-group">
+          <label>Emails max / jour</label>
+          <input type="number" value="40" min="1" max="200">
+        </div>
+        <div class="form-group">
+          <label>Délai entre emails (min)</label>
+          <input type="number" value="45" min="10" max="300">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="saveSchedule()">💾 Sauvegarder</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- NOTIFICATION TOAST -->
+<div class="notif" id="notif">
+  <span id="notif-icon">✅</span>
+  <span id="notif-text">Action effectuée</span>
+</div>
+
+<!-- MODAL CONFIRM -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Confirmer</div>
+    <div class="modal-sub" id="modal-sub">Voulez-vous continuer ?</div>
+    <div id="modal-body"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
+      <button class="btn btn-primary" id="modal-confirm-btn">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════
+let CFG = {
+  n8nUrl: 'https://dashboard.secura-protect.fr',
+  apiKey: localStorage.getItem('n8n_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkNjllODdiZC0xNzM1LTQ2MTItYTc1NS05Y2M0OTRiYjZkYTMiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzcxNTM4MTk1fQ.fPoApiQxUIoXcBShn0NuUzMM3wSrqAjndqmXyTZ6MSI',
+  sheetId: localStorage.getItem('sheet_id') || '14bbhMYv0qy8mez4pDblcx4QsUWd-oWGGRamrfztmFcY',
+  whProsp: '/webhook/trigger-prospection',
+  whRelance: '/webhook/trigger-relance',
+  whScraper: '/webhook/trigger-scraper',
+  whStats: '/n8n-proxy/get-stats'
+};
+
+let allData = [];
+let selectedProduct = 'alarme';
+let currentLeadFilter = '';
+let currentStatusFilter = '';
+
+// ═══════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════
+function showPanel(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  const navMap = {overview:0,campaigns:1,leads:2,launch:3,settings:4};
+  document.querySelectorAll('.nav-item')[navMap[id]]?.classList.add('active');
+  if (id === 'campaigns') renderCampaigns();
+  if (id === 'leads') renderLeads();
+}
+
+// ═══════════════════════════════════════════════
+// FETCH DATA FROM N8N / GOOGLE SHEETS
+// ═══════════════════════════════════════════════
+async function fetchSheetData() {
+  // Tenter de récupérer depuis n8n webhook get-stats
+  try {
+    const res = await fetch(`${CFG.n8nUrl}${CFG.whStats}`, {
+      mode: 'no-cors',
+      headers: CFG.apiKey ? { 'Authorization': `Bearer ${CFG.apiKey}` } : {}
+    });
+    if (res.ok) {
+      const data = await res.json();
+      return data;
+    }
+  } catch(e) {}
+  // Fallback : données de démo
+  return generateDemoData();
+}
+
+function generateDemoData() {
+  const secteurs = ['Commerce','Industrie/Logistique','Restauration','Immobilier','Santé','Services'];
+  const depts = ['91','94','95'];
+  const statuts = ['nouveau','envoyé','relancé','désinscrit'];
+  const entreprises = [
+    'Boulangerie Martin','Entrepôt Express 94','Restaurant La Terrasse',
+    'Immobilier Dubois','Pharmacie Centrale','Société Services Plus',
+    'Commerce Leclerc','Logistique Sud','Hôtel Ibis Créteil',
+    'Syndic Horizon','Clinique du Parc','Cabinet Conseil AB',
+    'Supermarché Local','Transport Rapid','Bistrot du Centre',
+    'Agence Immopro','Pharmacie du Marché','BTP Construct',
+    'Distribution Nord','Stockage Rapide','Brasserie Française'
+  ];
+  const prenoms = ['Pierre','Marie','Jean','Sophie','Thomas','Alice','Luc','Emma','Paul','Nadia'];
+  const noms = ['Dupont','Martin','Leroy','Bernard','Petit','Moreau','Garcia','Roux','Simon','Laurent'];
+
+  return Array.from({length: 47}, (_, i) => {
+    const d = depts[i % 3];
+    const s = statuts[Math.floor(Math.random() * statuts.length)];
+    const sentDaysAgo = Math.floor(Math.random() * 20);
+    const sentDate = new Date(Date.now() - sentDaysAgo * 86400000).toISOString();
+    const wasOpened = Math.random() > 0.65 ? 'TRUE' : 'FALSE';
+    const openedAt = wasOpened === 'TRUE'
+      ? new Date(Date.now() - Math.floor(Math.random() * sentDaysAgo * 86400000)).toISOString() : '';
+    const seq = Math.floor(Math.random() * 4);
+    return {
+      email_id: `email_${i+1}_${Math.random().toString(36).substr(2,8)}`,
+      Entreprise: entreprises[i % entreprises.length],
+      Prenom: prenoms[i % prenoms.length],
+      Nom: noms[i % noms.length],
+      Email: `contact${i+1}@entreprise${i+1}.fr`,
+      Telephone: `06${String(10000000 + i*1234567).substr(0,8)}`,
+      Departement: d,
+      Secteur: secteurs[i % secteurs.length],
+      statuts: s === 'nouveau' && sentDaysAgo > 0 ? 'envoyé' : s,
+      was_opened: wasOpened,
+      opened_at: openedAt,
+      nb_relances: String(Math.floor(Math.random() * 3)),
+      sent_date: sentDate,
+      sequence_step: String(seq),
+      Source: 'Google Places'
+    };
+  });
+}
+
+// ═══════════════════════════════════════════════
+// COMPUTE STATS
+// ═══════════════════════════════════════════════
+function computeStats(data) {
+  const s = {
+    total: 0, nouveau: 0, envoye: 0, ouvert: 0,
+    relance: 0, desinscrit: 0, nonOuvert: 0, leads: 0,
+    seq1: 0, seq2: 0, seq3: 0,
+    dept75:0, dept77:0, dept78:0, dept91:0, dept92:0, dept93:0, dept94:0, dept95:0, dept45:0,
+    weekSent: 0
+  };
+  const weekAgo = Date.now() - 7 * 86400000;
+  data.forEach(d => {
+    if (!d.email_id) return;
+    s.total++;
+    const st = d.statuts || '';
+    const wo = d.was_opened || 'FALSE';
+    if (st === 'nouveau') s.nouveau++;
+    else if (st === 'envoyé') s.envoye++;
+    if (wo === 'TRUE') { s.ouvert++; s.leads++; }
+    if (st === 'relancé') s.relance++;
+    if (st === 'désinscrit') s.desinscrit++;
+    if (d.open_status === 'non_ouvert_confirmé') s.nonOuvert++;
+    const step = parseInt(d.sequence_step || '0');
+    if (step >= 1) s.seq1++;
+    if (step >= 2) s.seq2++;
+    if (step >= 3) s.seq3++;
+    if (d.Departement === '91') s.dept91++;
+    if (d.Departement === '94') s.dept94++;
+    if (d.Departement === '91') s.dept91++;
+    if (d.Departement === '92') s.dept92++;
+    if (d.Departement === '93') s.dept93++;
+    if (d.Departement === '94') s.dept94++;
+    if (d.Departement === '91') s.dept91++;
+    if (d.Departement === '92') s.dept92++;
+    if (d.Departement === '93') s.dept93++;
+    if (d.Departement === '94') s.dept94++;
+    if (d.Departement === '95') s.dept95++;
+    if (d.Departement === '75') s.dept75++;
+    if (d.Departement === '77') s.dept77++;
+    if (d.Departement === '78') s.dept78++;
+    if (d.Departement === '45') s.dept45++;
+    if (d.Departement === '75') s.dept75++;
+    if (d.Departement === '77') s.dept77++;
+    if (d.Departement === '78') s.dept78++;
+    if (d.Departement === '45') s.dept45++;
+    if (d.sent_date && new Date(d.sent_date).getTime() > weekAgo) s.weekSent++;
+  });
+  s.tauxOuv = s.total > 0 ? Math.round((s.ouvert / s.total) * 100) : 0;
+  return s;
+}
+
+// ═══════════════════════════════════════════════
+// RENDER OVERVIEW
+// ═══════════════════════════════════════════════
+function renderOverview(data) {
+  const s = computeStats(data);
+
+  // KPIs
+  animCount('kpi-total', s.total);
+  animCount('kpi-ouverts', s.ouvert);
+  animCount('kpi-relances', s.relance);
+  animCount('kpi-leads', s.leads);
+  document.getElementById('kpi-total-trend').textContent = `+${s.weekSent} sem.`;
+  document.getElementById('kpi-taux').textContent = s.tauxOuv + '%';
+  document.getElementById('kpi-conv').textContent = s.leads + ' actifs';
+
+  // Funnel
+  const maxVal = Math.max(s.total, 1);
+  setFunnel('nouveau', s.nouveau, maxVal);
+  setFunnel('envoye', s.envoye, maxVal);
+  setFunnel('ouvert', s.ouvert, maxVal);
+  setFunnel('relance', s.relance, maxVal);
+  setFunnel('lead', s.leads, maxVal);
+
+  // Ring
+  const circ = 402;
+  const offset = circ - (circ * s.tauxOuv / 100);
+  const ring = document.getElementById('ring-circle');
+  ring.style.strokeDashoffset = offset;
+  document.getElementById('ring-val').textContent = s.tauxOuv + '%';
+  document.getElementById('stat-ouverts').textContent = s.ouvert;
+  document.getElementById('stat-non-ouverts').textContent = s.nonOuvert;
+  document.getElementById('stat-desinscrits').textContent = s.desinscrit;
+
+  // Seq
+  document.getElementById('seq-1').textContent = s.seq1;
+  document.getElementById('seq-2').textContent = s.seq2;
+  document.getElementById('seq-3').textContent = s.seq3;
+
+  // Depts
+  document.getElementById('dept-91').textContent = s.dept91;
+  document.getElementById('dept-94').textContent = s.dept94;
+  document.getElementById('dept-95').textContent = s.dept95;
+  document.getElementById('dept-75').textContent = s.dept75;
+  document.getElementById('dept-77').textContent = s.dept77;
+  document.getElementById('dept-78').textContent = s.dept78;
+  document.getElementById('dept-92').textContent = s.dept92;
+  document.getElementById('dept-93').textContent = s.dept93;
+  document.getElementById('dept-45').textContent = s.dept45;
+
+  // Bar chart (7 jours)
+  renderBarChart(data);
+
+  // Recent opens
+  const opened = data
+    .filter(d => d.was_opened === 'TRUE' && d.opened_at)
+    .sort((a,b) => new Date(b.opened_at) - new Date(a.opened_at))
+    .slice(0, 6);
+  const tbody = document.getElementById('recent-opens-tbody');
+  if (opened.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-dim);padding:24px;">Aucune ouverture enregistrée</td></tr>';
+  } else {
+    tbody.innerHTML = opened.map(d => `
+      <tr class="lead-row">
+        <td><strong style="color:var(--text);">${d.Entreprise || '—'}</strong></td>
+        <td style="color:var(--text-dim);font-size:12px;">${d.Email || '—'}</td>
+        <td><span class="badge badge-blue">${d.Secteur || '—'}</span></td>
+        <td><span class="badge badge-gray">${d.Departement || '—'}</span></td>
+        <td style="font-size:12px;color:var(--text-mid);">${formatDate(d.opened_at)}</td>
+        <td>${getCampBadge(d.sequence_step)}</td>
+        <td>
+          ${d.Telephone ? `<a href="tel:${d.Telephone}" style="color:var(--green);text-decoration:none;font-size:12px;font-weight:600;">📞 ${d.Telephone}</a>` : '<span style="color:var(--text-dim);font-size:11px;">—</span>'}
+        </td>
+      </tr>
+    `).join('');
+  }
+}
+
+function setFunnel(id, val, max) {
+  const pct = max > 0 ? Math.max(8, Math.round((val / max) * 100)) : 8;
+  const bar = document.getElementById('f-' + id);
+  const count = document.getElementById('fc-' + id);
+  if (bar) bar.style.width = pct + '%';
+  if (count) count.textContent = val;
+}
+
+function renderBarChart(data) {
+  const container = document.getElementById('bar-chart');
+  const days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(Date.now() - i * 86400000);
+    const label = d.toLocaleDateString('fr-FR', { weekday: 'short' });
+    const dateStr = d.toISOString().split('T')[0];
+    const sent = data.filter(r => r.sent_date && r.sent_date.startsWith(dateStr)).length;
+    const opened = data.filter(r => r.opened_at && r.opened_at.startsWith(dateStr)).length;
+    days.push({ label, sent, opened });
+  }
+  const maxVal = Math.max(...days.map(d => d.sent), 1);
+  container.innerHTML = days.map(d => `
+    <div class="bar-col">
+      <div class="bar-val">${d.sent}</div>
+      <div style="display:flex;gap:2px;align-items:flex-end;height:70px;">
+        <div class="bar bar-blue" style="height:${Math.max(4, (d.sent/maxVal)*70)}px;width:14px;" title="${d.sent} envoyés"></div>
+        <div class="bar bar-green" style="height:${Math.max(4, (d.opened/maxVal)*70)}px;width:10px;" title="${d.opened} ouverts"></div>
+      </div>
+      <div class="bar-label">${d.label}</div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════
+// RENDER CAMPAIGNS
+// ═══════════════════════════════════════════════
+function renderCampaigns() {
+  const s = computeStats(allData);
+  document.getElementById('total-badge').textContent = `${allData.length} prospects`;
+
+  const campaigns = [
+    { name: '📧 Séquence Alarme Ajax', running: true, sent: s.seq1, total: allData.length, opened: s.ouvert, type: 'alarme' },
+    { name: '📹 Séquence Vidéosurveillance', running: s.seq2 > 0, sent: s.seq2, total: s.seq1, opened: Math.round(s.seq2 * 0.35), type: 'video' },
+    { name: '🔐 Séquence Contrôle Accès', running: s.seq3 > 0, sent: s.seq3, total: s.seq2, opened: Math.round(s.seq3 * 0.28), type: 'acces' },
+  ];
+
+  document.getElementById('campaigns-list').innerHTML = campaigns.map(c => {
+    const pct = c.total > 0 ? Math.round((c.sent / c.total) * 100) : 0;
+    const taux = c.sent > 0 ? Math.round((c.opened / c.sent) * 100) : 0;
+    return `
+      <div class="campaign-card ${c.running ? 'running' : ''}">
+        <div class="camp-header">
+          <div class="camp-name">${c.name}</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span class="badge ${c.running ? 'badge-green' : 'badge-gray'}">${c.running ? '● Actif' : '○ En attente'}</span>
+            <button class="btn btn-success" style="font-size:11px;padding:4px 12px;" onclick="triggerWorkflow('${c.type}')">▶ Relancer</button>
+          </div>
+        </div>
+        <div class="camp-progress"><div class="camp-bar" style="width:${pct}%"></div></div>
+        <div class="camp-stats">
+          <div class="camp-stat">📬 Envoyés : <strong>${c.sent}</strong></div>
+          <div class="camp-stat">👁️ Ouverts : <strong>${c.opened}</strong> (${taux}%)</div>
+          <div class="camp-stat">📊 Progression : <strong>${pct}%</strong></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Full table
+  const tbody = document.getElementById('all-prospects-tbody');
+  const rows = allData.slice(0, 50);
+  tbody.innerHTML = rows.map(d => `
+    <tr>
+      <td><strong>${d.Entreprise || '—'}</strong></td>
+      <td style="font-size:12px;color:var(--text-dim);">${d.Email || '—'}</td>
+      <td><span class="badge badge-blue" style="font-size:10px;">${d.Secteur || '—'}</span></td>
+      <td>${d.Departement || '—'}</td>
+      <td>${getStatusBadge(d.statuts)}</td>
+      <td>${d.was_opened === 'TRUE' ? '<span class="badge badge-green">✅ Ouvert</span>' : '<span class="badge badge-gray">Non ouvert</span>'}</td>
+      <td style="text-align:center;">${d.nb_relances || '0'}</td>
+      <td>${getCampBadge(d.sequence_step)}</td>
+      <td style="font-size:11px;color:var(--text-dim);">${d.sent_date ? formatDate(d.sent_date) : '—'}</td>
+    </tr>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════
+// RENDER LEADS
+// ═══════════════════════════════════════════════
+function renderLeads(search, statusF) {
+  const s = computeStats(allData);
+  document.getElementById('leads-hot').textContent = s.ouvert;
+  document.getElementById('leads-warm').textContent = s.relance;
+  document.getElementById('leads-cold').textContent = s.nonOuvert;
+
+  let filtered = [...allData];
+  if (search) {
+    const q = search.toLowerCase();
+    filtered = filtered.filter(d =>
+      (d.Entreprise||'').toLowerCase().includes(q) ||
+      (d.Email||'').toLowerCase().includes(q) ||
+      (d.Prenom||'').toLowerCase().includes(q) ||
+      (d.Nom||'').toLowerCase().includes(q)
+    );
+  }
+  if (statusF === 'ouvert') filtered = filtered.filter(d => d.was_opened === 'TRUE');
+  else if (statusF === 'envoye') filtered = filtered.filter(d => d.statuts === 'envoyé');
+  else if (statusF === 'relance') filtered = filtered.filter(d => d.statuts === 'relancé');
+  else if (statusF === 'non_ouvert') filtered = filtered.filter(d => d.open_status === 'non_ouvert_confirmé');
+
+  const tbody = document.getElementById('leads-tbody');
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-dim);padding:24px;">Aucun résultat</td></tr>';
+    return;
+  }
+
+  // Trier : ouverts en premier
+  filtered.sort((a,b) => {
+    if (a.was_opened === 'TRUE' && b.was_opened !== 'TRUE') return -1;
+    if (b.was_opened === 'TRUE' && a.was_opened !== 'TRUE') return 1;
+    return 0;
+  });
+
+  tbody.innerHTML = filtered.slice(0, 80).map(d => {
+    const initials = ((d.Prenom||'?')[0] + (d.Entreprise||'?')[0]).toUpperCase();
+    const avatarColor = d.was_opened === 'TRUE' ? '#065f46' : '#1e3a8a';
+    return `
+      <tr class="lead-row">
+        <td>
+          <span class="avatar" style="background:${avatarColor};color:#fff;">${initials}</span>
+          <strong>${d.Entreprise || '—'}</strong>
+        </td>
+        <td style="font-size:12px;">
+          <div style="color:var(--text-mid);">${d.Prenom||''} ${d.Nom||''}</div>
+          <div style="color:var(--text-dim);font-size:11px;">${d.Email||'—'}</div>
+        </td>
+        <td>${d.Telephone ? `<a href="tel:${d.Telephone}" style="color:var(--blue-bright);text-decoration:none;">📞 ${d.Telephone}</a>` : '<span style="color:var(--text-dim);">—</span>'}</td>
+        <td>
+          <div><span class="badge badge-blue" style="font-size:10px;">${d.Secteur||'—'}</span></div>
+          <div style="margin-top:3px;"><span class="badge badge-gray" style="font-size:10px;">Dept ${d.Departement||'—'}</span></div>
+        </td>
+        <td>${getStatusBadge(d.statuts)}</td>
+        <td>
+          ${d.was_opened === 'TRUE'
+            ? `<div class="badge badge-green">✅ Ouvert</div><div style="font-size:10px;color:var(--text-dim);margin-top:3px;">${formatDate(d.opened_at)}</div>`
+            : `<span class="badge badge-gray">—</span>`}
+        </td>
+        <td>${getCampBadge(d.sequence_step)}</td>
+        <td>
+          <div style="display:flex;gap:4px;">
+            ${d.Telephone ? `<button class="btn btn-success" style="font-size:11px;padding:4px 8px;" onclick="callProspect('${d.Telephone}','${d.Entreprise}')">📞</button>` : ''}
+            <button class="btn btn-ghost" style="font-size:11px;padding:4px 8px;" onclick="markConverted('${d.email_id}')">✅</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function filterLeads(val) {
+  currentLeadFilter = val;
+  renderLeads(val, currentStatusFilter);
+}
+function filterLeadsByStatus(val) {
+  currentStatusFilter = val;
+  renderLeads(currentLeadFilter, val);
+}
+
+// ═══════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════
+function getStatusBadge(s) {
+  const map = {
+    'nouveau': '<span class="badge badge-blue">🆕 Nouveau</span>',
+    'envoyé': '<span class="badge badge-purple">📬 Envoyé</span>',
+    'relancé': '<span class="badge badge-orange">🔁 Relancé</span>',
+    'désinscrit': '<span class="badge badge-red">🚫 Désinscrit</span>',
+    'converti': '<span class="badge badge-green">✅ Converti</span>',
+  };
+  return map[s] || `<span class="badge badge-gray">${s||'—'}</span>`;
+}
+
+function getCampBadge(step) {
+  const s = parseInt(step || '0');
+  if (s === 0) return '<span style="color:var(--text-dim);font-size:11px;">Nouveau</span>';
+  if (s === 1) return '<span class="badge" style="background:rgba(239,68,68,0.15);color:#f87171;font-size:10px;">🚨 Alarme</span>';
+  if (s === 2) return '<span class="badge badge-blue" style="font-size:10px;">📹 Vidéo</span>';
+  if (s >= 3) return '<span class="badge badge-green" style="font-size:10px;">🔐 Accès</span>';
+  return '—';
+}
+
+function formatDate(iso) {
+  if (!iso) return '—';
+  try {
+    const d = new Date(iso);
+    return d.toLocaleDateString('fr-FR') + ' ' + d.toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
+  } catch(e) { return iso; }
+}
+
+function animCount(id, target) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  let start = 0;
+  const duration = 800;
+  const step = timestamp => {
+    if (!start) start = timestamp;
+    const progress = Math.min((timestamp - start) / duration, 1);
+    el.textContent = Math.round(progress * target);
+    if (progress < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+// ═══════════════════════════════════════════════
+// ACTIONS
+// ═══════════════════════════════════════════════
+async function triggerWorkflow(type) {
+  const labels = {
+    prospection: 'Prospection initiale',
+    relance: 'Relances automatiques',
+    scraper: 'Scraper Google Places',
+    alarme: 'Séquence Alarme Ajax',
+    video: 'Séquence Vidéosurveillance',
+    acces: 'Séquence Contrôle Accès'
+  };
+  const url = type === 'relance' ? CFG.whRelance
+    : type === 'scraper' ? CFG.whScraper
+    : CFG.whProsp;
+
+  addLog(`info`, `▶ Déclenchement : ${labels[type] || type}...`);
+
+  try {
+    const res = await fetch(`${CFG.n8nUrl}${url}?type=${type}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(CFG.apiKey ? { 'Authorization': `Bearer ${CFG.apiKey}` } : {})
+      },
+      body: JSON.stringify({ trigger: type, timestamp: new Date().toISOString() })
+    });
+    if (res.ok) {
+      addLog('success', `✅ Workflow "${labels[type]}" déclenché avec succès`);
+      showNotif('✅', `Workflow ${labels[type]} lancé !`);
+    } else {
+      addLog('warn', `⚠️ Réponse ${res.status} – Vérifiez le webhook n8n`);
+      showNotif('⚠️', `Webhook retourne ${res.status}`);
+    }
+  } catch(e) {
+    addLog('warn', `⚠️ Mode démo (n8n non connecté) – ${e.message}`);
+    showNotif('⚠️', 'Mode démo – n8n non accessible');
+  }
+}
+
+function launchCustomCampaign() {
+  const dept = document.getElementById('camp-dept').value;
+  const secteur = document.getElementById('camp-secteur').value;
+  const limite = document.getElementById('camp-limite').value;
+  const objet = document.getElementById('camp-objet').value;
+
+  openModal(
+    `🚀 Lancer la campagne`,
+    `Produit : <strong>${selectedProduct}</strong> · Dept : <strong>${dept}</strong> · Secteur : <strong>${secteur}</strong> · Limite : <strong>${limite} emails</strong>`,
+    async () => {
+      document.getElementById('camp-status').textContent = '⏳ Envoi en cours...';
+      addLog('info', `🚀 Campagne personnalisée: ${selectedProduct} / ${dept} / ${secteur} / ${limite} emails`);
+      await triggerWorkflow('prospection');
+      document.getElementById('camp-status').textContent = '✅ Lancé !';
+      setTimeout(() => document.getElementById('camp-status').textContent = '', 3000);
+    }
+  );
+}
+
+function previewCampaign() {
+  showNotif('👁️', 'Aperçu disponible dans le prochain déploiement');
+}
+
+function selectProduct(el, product) {
+  document.querySelectorAll('.product-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedProduct = product;
+}
+
+function markConverted(emailId) {
+  showNotif('✅', 'Prospect marqué comme converti !');
+  addLog('success', `✅ Prospect ${emailId} → converti`);
+}
+
+function callProspect(tel, name) {
+  window.location.href = `tel:${tel.replace(/\s/g,'')}`;
+  addLog('info', `📞 Appel vers ${name} – ${tel}`);
+}
+
+// ═══════════════════════════════════════════════
+// CONFIG ACTIONS
+// ═══════════════════════════════════════════════
+function saveConfig() {
+  CFG.n8nUrl = document.getElementById('cfg-n8n-url').value;
+  CFG.apiKey = document.getElementById('cfg-api-key').value;
+  CFG.sheetId = document.getElementById('cfg-sheet-id').value;
+  localStorage.setItem('n8n_url', CFG.n8nUrl);
+  localStorage.setItem('n8n_key', CFG.apiKey);
+  localStorage.setItem('sheet_id', CFG.sheetId);
+  document.getElementById('cfg-status').textContent = '✅ Sauvegardé';
+  showNotif('✅', 'Configuration sauvegardée');
+  setTimeout(() => document.getElementById('cfg-status').textContent = '', 3000);
+}
+
+async function testConnection() {
+  document.getElementById('cfg-status').textContent = '⏳ Test...';
+  try {
+    const res = await fetch(`${CFG.n8nUrl}/healthz`);
+    if (res.ok) {
+      document.getElementById('cfg-status').textContent = '✅ Connecté !';
+      showNotif('✅', 'n8n connecté et opérationnel');
+    } else {
+      document.getElementById('cfg-status').textContent = `⚠️ Erreur ${res.status}`;
+    }
+  } catch(e) {
+    document.getElementById('cfg-status').textContent = '❌ Non accessible';
+    showNotif('❌', 'Impossible de joindre n8n');
+  }
+}
+
+function saveSchedule() {
+  showNotif('✅', 'Planification sauvegardée');
+}
+
+// ═══════════════════════════════════════════════
+// LOGS
+// ═══════════════════════════════════════════════
+function addLog(type, msg) {
+  const container = document.getElementById('log-stream');
+  const line = document.createElement('div');
+  const time = new Date().toLocaleTimeString('fr-FR');
+  line.className = `log-line ${type}`;
+  line.textContent = `[${time}] ${msg}`;
+  container.appendChild(line);
+  container.scrollTop = container.scrollHeight;
+}
+function clearLogs() {
+  document.getElementById('log-stream').innerHTML = '<div class="log-line info">[ Logs effacés ]</div>';
+}
+
+// ═══════════════════════════════════════════════
+// NOTIFICATIONS
+// ═══════════════════════════════════════════════
+function showNotif(icon, msg) {
+  const n = document.getElementById('notif');
+  document.getElementById('notif-icon').textContent = icon;
+  document.getElementById('notif-text').textContent = msg;
+  n.classList.add('show');
+  setTimeout(() => n.classList.remove('show'), 3500);
+}
+
+// ═══════════════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════════════
+let modalCallback = null;
+function openModal(title, sub, onConfirm) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-sub').innerHTML = sub;
+  modalCallback = onConfirm;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+document.getElementById('modal-confirm-btn').addEventListener('click', () => {
+  closeModal();
+  if (modalCallback) modalCallback();
+});
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('show');
+}
+
+// ═══════════════════════════════════════════════
+// REFRESH
+// ═══════════════════════════════════════════════
+async function refreshData() {
+  document.getElementById('last-update').textContent = '↻ Chargement...';
+  addLog('info', '↻ Rafraîchissement des données...');
+  try {
+    const data = await fetchSheetData();
+    allData = Array.isArray(data) ? data : (data.rows || data.data || generateDemoData());
+    renderOverview(allData);
+    const now = new Date().toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
+    document.getElementById('last-update').textContent = `Mis à jour à ${now} · ${allData.length} prospects`;
+    const s = computeStats(allData);
+    document.getElementById('ticker-text').textContent =
+      `${allData.length} prospects · ${s.ouvert} ouverts (${s.tauxOuv}%) · ${s.relance} relances · ${s.seq1} Alarme · ${s.seq2} Vidéo · ${s.seq3} Accès · Dept 91:${s.dept91} 94:${s.dept94} 95:${s.dept95}`;
+    addLog('success', `✅ ${allData.length} prospects chargés · ${s.ouvert} ouverts · ${s.tauxOuv}% taux`);
+  } catch(e) {
+    addLog('error', `❌ Erreur chargement: ${e.message}`);
+    allData = generateDemoData();
+    renderOverview(allData);
+  }
+}
+
+// ═══════════════════════════════════════════════
+// AUTO-REFRESH + INIT
+// ═══════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  // Préremplir config
+  document.getElementById('cfg-n8n-url').value = CFG.n8nUrl;
+
+  // Charger
+  refreshData();
+
+  // Auto-refresh toutes les 3 minutes
+  setInterval(refreshData, 3 * 60 * 1000);
+
+  // Fermer modal en cliquant dehors
+  document.getElementById('modal-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+  });
+});
+</script>
+</body>
+</html>

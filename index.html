@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SECURA PROTECT – Tableau de bord KPI</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #1c2333;
+      --border: #30363d;
+      --accent: #e63946;
+      --accent2: #f4a261;
+      --accent3: #2ec4b6;
+      --accent4: #8338ec;
+      --green: #2ecc71;
+      --red: #e63946;
+      --yellow: #f4a261;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --card-radius: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ─── HEADER ─── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .logo-text { font-size: 18px; font-weight: 700; letter-spacing: .3px; }
+    .logo-sub { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+
+    .header-right {
+      display: flex; align-items: center; gap: 16px;
+    }
+    #last-update {
+      font-size: 12px; color: var(--muted);
+    }
+    .refresh-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 7px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      display: flex; align-items: center; gap: 6px;
+      transition: background .2s;
+    }
+    .refresh-btn:hover { background: var(--border); }
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .4; }
+    }
+
+    /* ─── NAV TABS ─── */
+    nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      display: flex; gap: 4px;
+    }
+    .tab {
+      padding: 14px 20px;
+      font-size: 14px;
+      cursor: pointer;
+      color: var(--muted);
+      border-bottom: 2px solid transparent;
+      transition: all .2s;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .tab:hover { color: var(--text); }
+    .tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* ─── MAIN CONTENT ─── */
+    main {
+      padding: 28px 32px;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* ─── SECTION TITLE ─── */
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .section-title { font-size: 20px; font-weight: 700; }
+    .section-period {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    /* ─── KPI CARDS ─── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--card-radius);
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      transition: transform .2s, border-color .2s;
+    }
+    .kpi-card:hover { transform: translateY(-2px); border-color: #4d555e; }
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+    .kpi-card.accent1::before { background: var(--accent); }
+    .kpi-card.accent2::before { background: var(--accent2); }
+    .kpi-card.accent3::before { background: var(--accent3); }
+    .kpi-card.accent4::before { background: var(--accent4); }
+    .kpi-card.green::before { background: var(--green); }
+
+    .kpi-label {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      margin-bottom: 12px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .kpi-value {
+      font-size: 32px;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .kpi-sub {
+      font-size: 12px;
+      color: var(--muted);
+      display: flex; align-items: center; gap: 4px;
+    }
+    .kpi-badge {
+      display: inline-flex; align-items: center; gap: 3px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 11px; font-weight: 600;
+    }
+    .badge-up { background: rgba(46,204,113,.15); color: var(--green); }
+    .badge-down { background: rgba(230,57,70,.15); color: var(--red); }
+    .badge-neutral { background: rgba(244,162,97,.15); color: var(--yellow); }
+
+    /* ─── CHARTS ─── */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .chart-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--card-radius);
+      padding: 20px;
+    }
+    .chart-title {
+      font-size: 14px; font-weight: 600;
+      margin-bottom: 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .chart-wrap { position: relative; height: 220px; }
+
+    /* ─── TABLE ─── */
+    .table-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--card-radius);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .table-header {
+      padding: 16px 20px;
+      font-size: 14px; font-weight: 600;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th {
+      text-align: left;
+      padding: 12px 20px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 13px 20px;
+      font-size: 13px;
+      border-bottom: 1px solid rgba(48,54,61,.5);
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface2); }
+
+    /* ─── STATUS PILLS ─── */
+    .pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px; font-weight: 600;
+    }
+    .pill-green { background: rgba(46,204,113,.15); color: var(--green); }
+    .pill-red { background: rgba(230,57,70,.15); color: var(--red); }
+    .pill-yellow { background: rgba(244,162,97,.15); color: var(--yellow); }
+    .pill-blue { background: rgba(46,196,182,.15); color: var(--accent3); }
+    .pill-purple { background: rgba(131,56,236,.15); color: var(--accent4); }
+
+    /* ─── PROGRESS BAR ─── */
+    .progress-wrap { margin-top: 8px; }
+    .progress-bar {
+      height: 6px;
+      background: var(--surface2);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 10px;
+      transition: width 1s ease;
+    }
+
+    /* ─── ALERT BOX ─── */
+    .alert-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+    .alert-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid;
+      border-radius: 8px;
+      padding: 12px 16px;
+      display: flex; align-items: center; gap: 12px;
+      font-size: 13px;
+    }
+    .alert-item.danger { border-left-color: var(--red); }
+    .alert-item.warning { border-left-color: var(--yellow); }
+    .alert-item.info { border-left-color: var(--accent3); }
+    .alert-icon { font-size: 18px; }
+    .alert-text strong { display: block; font-size: 13px; }
+    .alert-text span { color: var(--muted); font-size: 12px; }
+
+    /* ─── CONFIG PANEL ─── */
+    .config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .config-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--card-radius);
+      padding: 20px;
+    }
+    .config-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 14px; }
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+    .form-group input, .form-group select {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .form-group input:focus, .form-group select:focus { border-color: var(--accent); }
+    .btn-primary {
+      background: var(--accent);
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px; font-weight: 600;
+      transition: opacity .2s;
+    }
+    .btn-primary:hover { opacity: .85; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      main { padding: 16px; }
+      header, nav { padding: 0 16px; }
+      .charts-grid { grid-template-columns: 1fr; }
+      .config-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .logo-sub { display: none; }
+      .kpi-value { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════ HEADER ══════════ -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">🛡</div>
+    <div>
+      <div class="logo-text">SECURA PROTECT</div>
+      <div class="logo-sub">Tableau de bord KPI temps réel</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="status-dot"></div>
+    <span id="last-update">Mise à jour : –</span>
+    <button class="refresh-btn" onclick="refreshAll()">↻ Actualiser</button>
+  </div>
+</header>
+
+<!-- ══════════ NAV ══════════ -->
+<nav>
+  <div class="tab active" onclick="showTab('overview', this)">📊 Vue globale</div>
+  <div class="tab" onclick="showTab('commercial', this)">💼 Commercial</div>
+  <div class="tab" onclick="showTab('prospection', this)">📧 Prospection</div>
+  <div class="tab" onclick="showTab('sav', this)">🔧 SAV</div>
+  <div class="tab" onclick="showTab('contrats', this)">📋 Contrats</div>
+  <div class="tab" onclick="showTab('config', this)">⚙️ Configuration</div>
+</nav>
+
+<main>
+
+  <!-- ══════════ VUE GLOBALE ══════════ -->
+  <section id="overview" class="section active">
+    <div class="section-header">
+      <div class="section-title">Vue d'ensemble</div>
+      <div class="section-period" id="period-label">Chargement...</div>
+    </div>
+
+    <!-- Alertes -->
+    <div class="alert-list" id="alert-list"></div>
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card accent1">
+        <div class="kpi-label">💰 CA Mois en cours</div>
+        <div class="kpi-value" id="ov-ca">–</div>
+        <div class="kpi-sub"><span class="kpi-badge" id="ov-ca-badge">–</span> vs mois précédent</div>
+      </div>
+      <div class="kpi-card accent2">
+        <div class="kpi-label">📄 Taux de transformation</div>
+        <div class="kpi-value" id="ov-transform">–</div>
+        <div class="kpi-sub"><span id="ov-devis">–</span> devis envoyés ce mois</div>
+      </div>
+      <div class="kpi-card accent3">
+        <div class="kpi-label">📧 Prospects actifs</div>
+        <div class="kpi-value" id="ov-prospects">–</div>
+        <div class="kpi-sub">Taux ouverture : <strong id="ov-open-rate">–</strong></div>
+      </div>
+      <div class="kpi-card accent4">
+        <div class="kpi-label">🔧 Tickets SAV ouverts</div>
+        <div class="kpi-value" id="ov-tickets">–</div>
+        <div class="kpi-sub">Délai moyen : <strong id="ov-delay">–</strong></div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-label">📋 Contrats actifs</div>
+        <div class="kpi-value" id="ov-contrats">–</div>
+        <div class="kpi-sub"><span class="kpi-badge badge-yellow" id="ov-renew">–</span> à renouveler (30j)</div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title">📈 CA mensuel (12 mois)</div>
+        <div class="chart-wrap"><canvas id="chart-ca"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">🎯 Entonnoir commercial</div>
+        <div class="chart-wrap"><canvas id="chart-funnel"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ COMMERCIAL ══════════ -->
+  <section id="commercial" class="section">
+    <div class="section-header">
+      <div class="section-title">Commercial & Devis</div>
+      <div class="section-period">Mois en cours</div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card accent1">
+        <div class="kpi-label">💰 CA Mois</div>
+        <div class="kpi-value" id="com-ca">–</div>
+        <div class="progress-wrap">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted)">
+            <span>Objectif mensuel</span><span id="com-obj-pct">–</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" id="com-progress" style="background:var(--accent);width:0%"></div></div>
+        </div>
+      </div>
+      <div class="kpi-card accent2">
+        <div class="kpi-label">📄 Devis envoyés</div>
+        <div class="kpi-value" id="com-devis">–</div>
+        <div class="kpi-sub">Valeur totale : <strong id="com-devis-val">–</strong></div>
+      </div>
+      <div class="kpi-card accent3">
+        <div class="kpi-label">✅ Devis acceptés</div>
+        <div class="kpi-value" id="com-accepted">–</div>
+        <div class="kpi-sub">Taux : <strong id="com-rate">–</strong></div>
+      </div>
+      <div class="kpi-card accent4">
+        <div class="kpi-label">🛒 Panier moyen</div>
+        <div class="kpi-value" id="com-panier">–</div>
+        <div class="kpi-sub"><span class="kpi-badge" id="com-panier-badge">–</span> vs M-1</div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title">📊 CA par type de prestation</div>
+        <div class="chart-wrap"><canvas id="chart-prestation"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">📅 Devis envoyés vs acceptés (6 mois)</div>
+        <div class="chart-wrap"><canvas id="chart-devis"></canvas></div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-header">📄 Derniers devis</div>
+      <table>
+        <thead>
+          <tr>
+            <th>N° Devis</th>
+            <th>Client</th>
+            <th>Type</th>
+            <th>Montant HT</th>
+            <th>Date</th>
+            <th>Statut</th>
+          </tr>
+        </thead>
+        <tbody id="devis-table"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ══════════ PROSPECTION ══════════ -->
+  <section id="prospection" class="section">
+    <div class="section-header">
+      <div class="section-title">Prospection & Leads (n8n)</div>
+      <div class="section-period">30 derniers jours</div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card accent1">
+        <div class="kpi-label">📤 Emails envoyés</div>
+        <div class="kpi-value" id="pros-sent">–</div>
+        <div class="kpi-sub">Ce mois</div>
+      </div>
+      <div class="kpi-card accent2">
+        <div class="kpi-label">👁️ Taux d'ouverture</div>
+        <div class="kpi-value" id="pros-open">–</div>
+        <div class="kpi-sub">Moyenne secteur : 22%</div>
+      </div>
+      <div class="kpi-card accent3">
+        <div class="kpi-label">🖱️ Taux de clic</div>
+        <div class="kpi-value" id="pros-click">–</div>
+        <div class="kpi-sub">Moyenne secteur : 3.5%</div>
+      </div>
+      <div class="kpi-card accent4">
+        <div class="kpi-label">🎯 Leads qualifiés</div>
+        <div class="kpi-value" id="pros-leads">–</div>
+        <div class="kpi-sub">Score moyen : <strong id="pros-score">–</strong>/100</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-label">📞 RDV obtenus</div>
+        <div class="kpi-value" id="pros-rdv">–</div>
+        <div class="kpi-sub">Taux contact → RDV : <strong id="pros-rdv-rate">–</strong></div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title">📧 Performance emails (4 semaines)</div>
+        <div class="chart-wrap"><canvas id="chart-email"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">🗺️ Leads par département</div>
+        <div class="chart-wrap"><canvas id="chart-depts"></canvas></div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-header">🎯 Pipeline prospects chauds</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Entreprise</th>
+            <th>Contact</th>
+            <th>Département</th>
+            <th>Score</th>
+            <th>Dernier contact</th>
+            <th>Statut</th>
+          </tr>
+        </thead>
+        <tbody id="leads-table"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ══════════ SAV ══════════ -->
+  <section id="sav" class="section">
+    <div class="section-header">
+      <div class="section-title">SAV & Interventions</div>
+      <div class="section-period">Mois en cours</div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card accent1">
+        <div class="kpi-label">🔴 Tickets ouverts</div>
+        <div class="kpi-value" id="sav-open">–</div>
+        <div class="kpi-sub"><span id="sav-urgent">–</span> urgents</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-label">✅ Résolus ce mois</div>
+        <div class="kpi-value" id="sav-resolved">–</div>
+        <div class="kpi-sub">Taux résolution : <strong id="sav-res-rate">–</strong></div>
+      </div>
+      <div class="kpi-card accent2">
+        <div class="kpi-label">⏱️ Délai moyen</div>
+        <div class="kpi-value" id="sav-delay">–</div>
+        <div class="kpi-sub">Objectif : &lt; 48h</div>
+      </div>
+      <div class="kpi-card accent3">
+        <div class="kpi-label">😊 Satisfaction client</div>
+        <div class="kpi-value" id="sav-sat">–</div>
+        <div class="kpi-sub">Sur 5 étoiles – <span id="sav-reviews">–</span> avis</div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title">🔧 Tickets par type de système</div>
+        <div class="chart-wrap"><canvas id="chart-sav-type"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">📅 Tickets ouverts vs résolus (6 mois)</div>
+        <div class="chart-wrap"><canvas id="chart-sav-trend"></canvas></div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-header">🚨 Tickets urgents en cours</div>
+      <table>
+        <thead>
+          <tr>
+            <th>N° Ticket</th>
+            <th>Client</th>
+            <th>Système</th>
+            <th>Problème</th>
+            <th>Ouvert le</th>
+            <th>Priorité</th>
+          </tr>
+        </thead>
+        <tbody id="sav-table"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ══════════ CONTRATS ══════════ -->
+  <section id="contrats" class="section">
+    <div class="section-header">
+      <div class="section-title">Contrats & Renouvellements</div>
+      <div class="section-period">Actifs</div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card green">
+        <div class="kpi-label">📋 Contrats actifs</div>
+        <div class="kpi-value" id="con-total">–</div>
+        <div class="kpi-sub">MRR : <strong id="con-mrr">–</strong>/mois</div>
+      </div>
+      <div class="kpi-card accent2">
+        <div class="kpi-label">⚠️ À renouveler (30j)</div>
+        <div class="kpi-value" id="con-renew30">–</div>
+        <div class="kpi-sub">Valeur : <strong id="con-renew30-val">–</strong></div>
+      </div>
+      <div class="kpi-card accent1">
+        <div class="kpi-label">🔴 Expirés non renouvelés</div>
+        <div class="kpi-value" id="con-expired">–</div>
+        <div class="kpi-sub">Action requise</div>
+      </div>
+      <div class="kpi-card accent3">
+        <div class="kpi-label">📈 Taux de renouvellement</div>
+        <div class="kpi-value" id="con-renew-rate">–</div>
+        <div class="kpi-sub">12 derniers mois</div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title">📋 Contrats par type de service</div>
+        <div class="chart-wrap"><canvas id="chart-con-type"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">📅 Échéances à venir (90 jours)</div>
+        <div class="chart-wrap"><canvas id="chart-con-echeance"></canvas></div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-header">⚠️ Contrats à renouveler en priorité</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Client</th>
+            <th>Type de contrat</th>
+            <th>Valeur annuelle</th>
+            <th>Échéance</th>
+            <th>Jours restants</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="contrats-table"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ══════════ CONFIGURATION ══════════ -->
+  <section id="config" class="section">
+    <div class="section-header">
+      <div class="section-title">⚙️ Configuration</div>
+    </div>
+    <div class="config-grid">
+      <div class="config-card">
+        <h3>🔗 Google Sheets</h3>
+        <div class="form-group">
+          <label>ID du Google Sheet principal</label>
+          <input type="text" id="cfg-sheet-id" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms" />
+        </div>
+        <div class="form-group">
+          <label>API Key Google Sheets</label>
+          <input type="password" id="cfg-api-key" placeholder="AIzaSy..." />
+        </div>
+        <div class="form-group">
+          <label>Onglet Devis</label>
+          <input type="text" id="cfg-sheet-devis" value="Devis" />
+        </div>
+        <div class="form-group">
+          <label>Onglet Contrats</label>
+          <input type="text" id="cfg-sheet-contrats" value="Contrats" />
+        </div>
+        <div class="form-group">
+          <label>Onglet SAV</label>
+          <input type="text" id="cfg-sheet-sav" value="SAV" />
+        </div>
+        <button class="btn-primary" onclick="saveConfig()">💾 Sauvegarder</button>
+      </div>
+      <div class="config-card">
+        <h3>🔌 n8n Webhook</h3>
+        <div class="form-group">
+          <label>URL du webhook n8n (KPIs prospection)</label>
+          <input type="text" id="cfg-n8n-url" placeholder="https://n8n.secura-protect.fr/webhook/kpi-dashboard" />
+        </div>
+        <div class="form-group">
+          <label>Rafraîchissement automatique</label>
+          <select id="cfg-refresh">
+            <option value="60000">1 minute</option>
+            <option value="300000" selected>5 minutes</option>
+            <option value="900000">15 minutes</option>
+            <option value="1800000">30 minutes</option>
+            <option value="0">Manuel uniquement</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Objectif CA mensuel (€)</label>
+          <input type="number" id="cfg-obj-ca" placeholder="15000" value="15000" />
+        </div>
+        <div class="form-group">
+          <label>Seuil alerte tickets urgents</label>
+          <input type="number" id="cfg-seuil-tickets" placeholder="3" value="3" />
+        </div>
+        <button class="btn-primary" onclick="saveConfig()">💾 Sauvegarder</button>
+      </div>
+
+      <div class="config-card" style="grid-column: 1/-1">
+        <h3>📋 Structure Google Sheets attendue</h3>
+        <p style="font-size:13px;color:var(--muted);line-height:1.7">
+          <strong style="color:var(--text)">Onglet "Devis"</strong> : N°Devis | Client | Type | Montant_HT | Date | Statut (Envoyé/Accepté/Refusé)<br>
+          <strong style="color:var(--text)">Onglet "SAV"</strong> : N°Ticket | Client | Système | Problème | Date_ouverture | Priorité | Statut | Date_cloture<br>
+          <strong style="color:var(--text)">Onglet "Contrats"</strong> : Client | Type | Valeur_annuelle | Date_debut | Date_echeance | Statut<br>
+          <strong style="color:var(--text)">Webhook n8n</strong> : Retourne JSON avec champs emails_envoyes, taux_ouverture, taux_clic, leads_qualifies, rdv_obtenus
+        </p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+// ══════════════════════════════════════
+//  CONFIG & STATE
+// ══════════════════════════════════════
+let cfg = {
+  sheetId: localStorage.getItem('sp_sheetId') || '1fD7aj0eLlimivERYGiYLgx91I9owUQtO9Yevw7UUsKk',
+  apiKey: localStorage.getItem('sp_apiKey') || 'AIzaSyBwYcpsVnGbtZfk9o2Zcoff0GVlaeb4fJQ',
+  sheetDevis: localStorage.getItem('sp_sheetDevis') || 'Devis',
+  sheetContrats: localStorage.getItem('sp_sheetContrats') || 'Contrats',
+  sheetSav: localStorage.getItem('sp_sheetSav') || 'SAV',
+  n8nUrl: localStorage.getItem('sp_n8nUrl') || '',
+  objCa: parseInt(localStorage.getItem('sp_objCa') || '15000'),
+  seuilTickets: parseInt(localStorage.getItem('sp_seuilTickets') || '3'),
+  refresh: parseInt(localStorage.getItem('sp_refresh') || '300000'),
+};
+
+let charts = {};
+let refreshTimer = null;
+
+// ══════════════════════════════════════
+//  DEMO DATA (remplacée par API réelle)
+// ══════════════════════════════════════
+function getDemoData() {
+  const months = ['Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc', 'Jan'];
+  return {
+    ca: { current: 12450, prev: 10800, objective: cfg.objCa,
+      monthly: [8200,9100,7800,11200,10500,9800,8900,12100,13400,11800,10200,12450] },
+    devis: { sent: 18, accepted: 11, rate: 61, totalVal: 38200, panier: 3473, panierPrev: 3100,
+      list: [
+        { id:'DEV-2025-042', client:'Carrefour Évry', type:'Vidéosurveillance', montant:'8 400€', date:'10/01', statut:'Accepté' },
+        { id:'DEV-2025-041', client:'Mairie de Juvisy', type:'Contrôle accès', montant:'5 200€', date:'08/01', statut:'En attente' },
+        { id:'DEV-2025-040', client:'Logis Val d\'Oise', type:'Alarme incendie', montant:'3 800€', date:'05/01', statut:'Envoyé' },
+        { id:'DEV-2025-039', client:'Renault SA', type:'Vidéosurveillance', montant:'12 100€', date:'03/01', statut:'Accepté' },
+        { id:'DEV-2025-038', client:'Leclerc Brétigny', type:'Alarme intrusion', montant:'2 900€', date:'28/12', statut:'Refusé' },
+      ]},
+    prospection: { sent: 847, openRate: 34, clickRate: 8.2, leads: 23, score: 67, rdv: 8, rdvRate: 35,
+      emailsWeekly: [180,210,195,262], opensWeekly: [63,72,61,93], clicksWeekly: [15,18,14,22],
+      byDept: { '91':38, '94':29, '95':33 },
+      pipeline: [
+        { company:'Securitas Île-de-France', contact:'Marc Petit', dept:'91', score:89, lastContact:'Hier', statut:'Chaud' },
+        { company:'Résidences du Parc', contact:'Claire Morin', dept:'94', score:76, lastContact:'3j', statut:'Chaud' },
+        { company:'Hôpital Sainte-Marie', contact:'Dr Leblanc', dept:'95', score:71, lastContact:'1 sem', statut:'Tiède' },
+        { company:'Lidl Essonne', contact:'Sophie Durant', dept:'91', score:65, lastContact:'1 sem', statut:'Tiède' },
+        { company:'CCI Val-de-Marne', contact:'P. Mercier', dept:'94', score:58, lastContact:'2 sem', statut:'Froid' },
+      ]},
+    sav: { open: 7, urgent: 2, resolved: 31, resRate: 82, delay: '26h', sat: 4.6, reviews: 28,
+      byType: { 'Vidéosurveillance':14, 'Alarme intrusion':9, 'Contrôle accès':6, 'Alarme incendie':4 },
+      monthly: { open:[8,5,9,7,6,7], resolved:[22,28,25,31,29,31] },
+      urgents: [
+        { id:'SAV-0892', client:'Renault SA', systeme:'Vidéosurveillance', probleme:'Caméras PTZ hors service', date:'Aujourd\'hui', prio:'Critique' },
+        { id:'SAV-0890', client:'Carrefour Évry', systeme:'Contrôle accès', probleme:'Badge lecteur défaillant', date:'Hier', prio:'Urgent' },
+      ]},
+    contrats: { total: 64, mrr: 8920, renew30: 5, renew30Val: 12400, expired: 2, renewRate: 91,
+      byType: { 'Maintenance vidéo':28, 'Télésurveillance':18, 'Maintenance alarme':12, 'MCO complet':6 },
+      echeances: { mois: ['Fév','Mar','Avr'], nb: [5,8,3] },
+      list: [
+        { client:'Mairie d\'Évry', type:'MCO complet', valeur:'4 800€/an', echeance:'15/02/2025', jours:2, action:'Appel urgent' },
+        { client:'Logis Val-de-Marne', type:'Maintenance vidéo', valeur:'2 400€/an', echeance:'22/02/2025', jours:9, action:'Email envoyé' },
+        { client:'Intermarché Vitry', type:'Télésurveillance', valeur:'1 800€/an', echeance:'28/02/2025', jours:15, action:'À contacter' },
+        { client:'École Jean Moulin', type:'Maintenance alarme', valeur:'960€/an', echeance:'05/03/2025', jours:20, action:'À contacter' },
+        { client:'Résid. Les Lilas', type:'Maintenance vidéo', valeur:'1 440€/an', echeance:'12/03/2025', jours:27, action:'Planifier RDV' },
+      ]}
+  };
+}
+
+// ══════════════════════════════════════
+//  FETCH DATA (Google Sheets + n8n)
+// ══════════════════════════════════════
+async function fetchSheetData(range) {
+  if (!cfg.sheetId || !cfg.apiKey) return null;
+  try {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${cfg.sheetId}/values/${range}?key=${cfg.apiKey}`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    return await res.json();
+  } catch { return null; }
+}
+
+async function fetchN8nData() {
+  if (!cfg.n8nUrl) return null;
+  try {
+    const res = await fetch(cfg.n8nUrl, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch { return null; }
+}
+
+async function fetchAllData() {
+  const demo = getDemoData();
+
+  // Récupération Google Sheets
+  const devisSheet = await fetchSheetData(`${cfg.sheetDevis}!A:F`);
+  const savSheet = await fetchSheetData(`${cfg.sheetSav}!A:M`);
+  const contratsSheet = await fetchSheetData(`${cfg.sheetContrats}!A:F`);
+  const n8nData = await fetchN8nData();
+
+  // ── DEVIS ──
+  if (devisSheet && devisSheet.values && devisSheet.values.length > 1) {
+    const rows = devisSheet.values.slice(1);
+    demo.devis.sent = rows.length;
+    demo.devis.accepted = rows.filter(r => r[5] === 'Accepté').length;
+    demo.devis.rate = demo.devis.sent > 0 ? Math.round(demo.devis.accepted / demo.devis.sent * 100) : 0;
+    demo.devis.totalVal = rows.reduce((s, r) => s + (parseFloat(r[3]) || 0), 0);
+    demo.devis.panier = demo.devis.sent > 0 ? Math.round(demo.devis.totalVal / demo.devis.sent) : 0;
+    demo.ca.current = rows.filter(r => r[5] === 'Accepté').reduce((s, r) => s + (parseFloat(r[3]) || 0), 0);
+    demo.devis.list = rows.slice(0, 5).map(r => ({
+      id: r[0] || '', client: r[1] || '', type: r[2] || '',
+      montant: (parseFloat(r[3]) || 0).toLocaleString('fr-FR') + '€',
+      date: r[4] || '', statut: r[5] || ''
+    }));
+  }
+
+  // ── SAV ──
+  if (savSheet && savSheet.values && savSheet.values.length > 1) {
+    const rows = savSheet.values.slice(1);
+    // Colonnes: N°Ticket(0) Client(1) Adresse(2) Code_postal(3) Ville(4) Contact_tel(5) Nom_contact(6) Adresse_Email(7) Système(8) Problème(9) Date_ouverture(10) Priorité(11) Statut(12)
+    demo.sav.open = rows.filter(r => r[12] === 'Ouvert').length;
+    demo.sav.resolved = rows.filter(r => r[12] === 'Résolu').length;
+    demo.sav.urgent = rows.filter(r => r[11] === 'Critique' || r[11] === 'Urgent').length;
+    const total = demo.sav.open + demo.sav.resolved;
+    demo.sav.resRate = total > 0 ? Math.round(demo.sav.resolved / total * 100) : 0;
+    demo.sav.urgents = rows.filter(r => r[12] === 'Ouvert').slice(0, 5).map(r => ({
+      id: r[0] || '', client: r[1] || '', systeme: r[8] || '',
+      probleme: r[9] || '', date: r[10] || '', prio: r[11] || ''
+    }));
+  }
+
+  // ── CONTRATS ──
+  if (contratsSheet && contratsSheet.values && contratsSheet.values.length > 1) {
+    const rows = contratsSheet.values.slice(1);
+    const actifs = rows.filter(r => r[5] === 'Actif');
+    demo.contrats.total = actifs.length;
+    demo.contrats.mrr = Math.round(actifs.reduce((s, r) => s + (parseFloat(r[2]) || 0), 0) / 12);
+    demo.contrats.expired = rows.filter(r => r[5] === 'Expiré').length;
+    demo.contrats.list = rows.slice(0, 8).map(r => ({
+      client: r[0] || '', type: r[1] || '',
+      valeur: (parseFloat(r[2]) || 0).toLocaleString('fr-FR') + '€/an',
+      echeance: r[4] || '', jours: 30, action: 'À contacter'
+    }));
+  }
+
+  // ── N8N ──
+  if (n8nData && n8nData.emails_envoyes) {
+    demo.prospection.sent = n8nData.emails_envoyes || demo.prospection.sent;
+    demo.prospection.openRate = n8nData.taux_ouverture || demo.prospection.openRate;
+    demo.prospection.clickRate = n8nData.taux_clic || demo.prospection.clickRate;
+    demo.prospection.leads = n8nData.leads_qualifies || demo.prospection.leads;
+    demo.prospection.rdv = n8nData.rdv_obtenus || demo.prospection.rdv;
+  }
+
+  return demo;
+}
+
+// ══════════════════════════════════════
+//  RENDER FUNCTIONS
+// ══════════════════════════════════════
+function fmt(n) { return new Intl.NumberFormat('fr-FR', { style:'currency', currency:'EUR', maximumFractionDigits:0 }).format(n); }
+function pct(n) { return n + '%'; }
+function badge(val, ref) {
+  const diff = ((val - ref) / ref * 100).toFixed(1);
+  const cls = diff > 0 ? 'badge-up' : 'badge-down';
+  const arrow = diff > 0 ? '▲' : '▼';
+  return `<span class="kpi-badge ${cls}">${arrow} ${Math.abs(diff)}%</span>`;
+}
+function jBadge(j) {
+  if (j <= 5) return '<span class="pill pill-red">🔴 URGENT</span>';
+  if (j <= 15) return '<span class="pill pill-yellow">⚠️ Bientôt</span>';
+  return '<span class="pill pill-green">✅ OK</span>';
+}
+
+function renderAlerts(d) {
+  const alerts = [];
+  if (d.sav.urgent >= cfg.seuilTickets)
+    alerts.push({ type:'danger', icon:'🚨', title:`${d.sav.urgent} tickets critiques non résolus`, detail:'Intervention requise sous 4h' });
+  if (d.contrats.renew30 > 0)
+    alerts.push({ type:'warning', icon:'⚠️', title:`${d.contrats.renew30} contrats à renouveler dans les 30 jours`, detail:`Valeur cumulée : ${fmt(d.contrats.renew30Val)}` });
+  if (d.contrats.expired > 0)
+    alerts.push({ type:'danger', icon:'🔴', title:`${d.contrats.expired} contrat(s) expiré(s) non renouvelé(s)`, detail:'Action commerciale urgente' });
+  if (d.prospection.openRate >= 30)
+    alerts.push({ type:'info', icon:'✅', title:`Excellent taux d'ouverture emails : ${pct(d.prospection.openRate)}`, detail:'Votre prospection performe au-dessus de la moyenne secteur (+8%)' });
+
+  const el = document.getElementById('alert-list');
+  el.innerHTML = alerts.map(a => `
+    <div class="alert-item ${a.type}">
+      <div class="alert-icon">${a.icon}</div>
+      <div class="alert-text"><strong>${a.title}</strong><span>${a.detail}</span></div>
+    </div>`).join('');
+}
+
+function renderOverview(d) {
+  const objPct = Math.min(100, Math.round(d.ca.current / d.ca.objective * 100));
+  setText('ov-ca', fmt(d.ca.current));
+  setHtml('ov-ca-badge', badge(d.ca.current, d.ca.prev));
+  setText('ov-transform', pct(d.devis.rate));
+  setText('ov-devis', d.devis.sent);
+  setText('ov-prospects', d.prospection.leads);
+  setText('ov-open-rate', pct(d.prospection.openRate));
+  setText('ov-tickets', d.sav.open);
+  setText('ov-delay', d.sav.delay);
+  setText('ov-contrats', d.contrats.total);
+  setHtml('ov-renew', `<span class="kpi-badge badge-yellow">${d.contrats.renew30}</span>`);
+
+  const now = new Date();
+  setText('period-label', now.toLocaleDateString('fr-FR', { month:'long', year:'numeric' }));
+}
+
+function renderCommercial(d) {
+  const pct2 = Math.min(100, Math.round(d.ca.current / d.ca.objective * 100));
+  setText('com-ca', fmt(d.ca.current));
+  setText('com-obj-pct', pct2 + '%');
+  document.getElementById('com-progress').style.width = pct2 + '%';
+  setText('com-devis', d.devis.sent);
+  setText('com-devis-val', fmt(d.devis.totalVal));
+  setText('com-accepted', d.devis.accepted);
+  setText('com-rate', pct(d.devis.rate));
+  setText('com-panier', fmt(d.devis.panier));
+  setHtml('com-panier-badge', badge(d.devis.panier, d.devis.panierPrev));
+
+  const tbody = document.getElementById('devis-table');
+  tbody.innerHTML = d.devis.list.map(r => {
+    const sc = r.statut === 'Accepté' ? 'pill-green' : r.statut === 'Refusé' ? 'pill-red' : r.statut === 'En attente' ? 'pill-yellow' : 'pill-blue';
+    return `<tr>
+      <td><strong>${r.id}</strong></td>
+      <td>${r.client}</td><td>${r.type}</td><td><strong>${r.montant}</strong></td><td>${r.date}</td>
+      <td><span class="pill ${sc}">${r.statut}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderProspection(d) {
+  const p = d.prospection;
+  setText('pros-sent', p.sent.toLocaleString());
+  setText('pros-open', pct(p.openRate));
+  setText('pros-click', pct(p.clickRate));
+  setText('pros-leads', p.leads);
+  setText('pros-score', p.score);
+  setText('pros-rdv', p.rdv);
+  setText('pros-rdv-rate', pct(p.rdvRate));
+
+  const tbody = document.getElementById('leads-table');
+  tbody.innerHTML = p.pipeline.map(r => {
+    const sc = r.statut === 'Chaud' ? 'pill-red' : r.statut === 'Tiède' ? 'pill-yellow' : 'pill-blue';
+    const scoreColor = r.score >= 75 ? 'var(--green)' : r.score >= 55 ? 'var(--yellow)' : 'var(--muted)';
+    return `<tr>
+      <td><strong>${r.company}</strong></td><td>${r.contact}</td>
+      <td><span class="pill pill-purple">Dpt ${r.dept}</span></td>
+      <td><strong style="color:${scoreColor}">${r.score}/100</strong></td>
+      <td>${r.lastContact}</td><td><span class="pill ${sc}">${r.statut}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderSav(d) {
+  const s = d.sav;
+  setText('sav-open', s.open);
+  setText('sav-urgent', s.urgent + ' urgents');
+  setText('sav-resolved', s.resolved);
+  setText('sav-res-rate', pct(s.resRate));
+  setText('sav-delay', s.delay);
+  setText('sav-sat', '⭐ ' + s.sat);
+  setText('sav-reviews', s.reviews);
+
+  const tbody = document.getElementById('sav-table');
+  tbody.innerHTML = s.urgents.map(r => {
+    const sc = r.prio === 'Critique' ? 'pill-red' : 'pill-yellow';
+    return `<tr>
+      <td><strong>${r.id}</strong></td><td>${r.client}</td><td>${r.systeme}</td>
+      <td>${r.probleme}</td><td>${r.date}</td>
+      <td><span class="pill ${sc}">${r.prio}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderContrats(d) {
+  const c = d.contrats;
+  setText('con-total', c.total);
+  setText('con-mrr', fmt(c.mrr));
+  setText('con-renew30', c.renew30);
+  setText('con-renew30-val', fmt(c.renew30Val));
+  setText('con-expired', c.expired);
+  setText('con-renew-rate', pct(c.renewRate));
+
+  const tbody = document.getElementById('contrats-table');
+  tbody.innerHTML = c.list.map(r => {
+    return `<tr>
+      <td><strong>${r.client}</strong></td><td>${r.type}</td>
+      <td><strong>${r.valeur}</strong></td><td>${r.echeance}</td>
+      <td>${jBadge(r.jours)}</td>
+      <td><span style="font-size:12px;color:var(--accent2)">${r.action}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════
+//  CHARTS
+// ══════════════════════════════════════
+const MONTHS = ['Fév','Mar','Avr','Mai','Juin','Juil','Août','Sep','Oct','Nov','Déc','Jan'];
+
+function mkChart(id, config) {
+  if (charts[id]) { charts[id].destroy(); }
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  charts[id] = new Chart(ctx, config);
+}
+
+const gridColor = 'rgba(48,54,61,.5)';
+const tickColor = '#8b949e';
+const scales = {
+  x: { grid: { color: gridColor }, ticks: { color: tickColor, font: { size: 11 } } },
+  y: { grid: { color: gridColor }, ticks: { color: tickColor, font: { size: 11 } } }
+};
+
+function renderCharts(d) {
+  // CA mensuel
+  mkChart('chart-ca', {
+    type: 'bar',
+    data: {
+      labels: MONTHS,
+      datasets: [
+        { label: 'CA (€)', data: d.ca.monthly, backgroundColor: 'rgba(230,57,70,.7)', borderRadius: 5 },
+        { label: 'Objectif', data: Array(12).fill(d.ca.objective), type: 'line', borderColor: '#f4a261', borderDash: [4,4], pointRadius: 0, tension: 0 }
+      ]
+    },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ labels:{ color:tickColor, font:{size:11} } } }, scales }
+  });
+
+  // Entonnoir commercial
+  mkChart('chart-funnel', {
+    type: 'bar',
+    data: {
+      labels: ['Prospects contactés', 'Leads qualifiés', 'Devis envoyés', 'Devis acceptés', 'RDV obtenus'],
+      datasets: [{ label:'Volume', data:[d.prospection.sent, d.prospection.leads, d.devis.sent, d.devis.accepted, d.prospection.rdv],
+        backgroundColor: ['rgba(131,56,236,.7)','rgba(46,196,182,.7)','rgba(244,162,97,.7)','rgba(46,204,113,.7)','rgba(46,204,113,.9)'],
+        borderRadius: 5 }]
+    },
+    options: { responsive:true, maintainAspectRatio:false, indexAxis:'y', plugins:{ legend:{display:false} }, scales }
+  });
+
+  // CA par prestation
+  mkChart('chart-prestation', {
+    type: 'doughnut',
+    data: {
+      labels: ['Vidéosurveillance', 'Contrôle accès', 'Alarme intrusion', 'Télésurveillance', 'Maintenance'],
+      datasets: [{ data:[42,22,15,13,8], backgroundColor:['#e63946','#f4a261','#2ec4b6','#8338ec','#2ecc71'], borderWidth:0 }]
+    },
+    options: { responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ position:'right', labels:{ color:tickColor, font:{size:11}, boxWidth:12 } } }
+    }
+  });
+
+  // Devis envoyés vs acceptés
+  const m6 = ['Août','Sep','Oct','Nov','Déc','Jan'];
+  mkChart('chart-devis', {
+    type: 'line',
+    data: {
+      labels: m6,
+      datasets: [
+        { label:'Envoyés', data:[14,16,19,15,17,18], borderColor:'#f4a261', backgroundColor:'rgba(244,162,97,.1)', fill:true, tension:.4, pointRadius:4 },
+        { label:'Acceptés', data:[9,10,11,10,12,11], borderColor:'#2ecc71', backgroundColor:'rgba(46,204,113,.1)', fill:true, tension:.4, pointRadius:4 }
+      ]
+    },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ labels:{ color:tickColor } } }, scales }
+  });
+
+  // Emails prospection
+  mkChart('chart-email', {
+    type: 'bar',
+    data: {
+      labels: ['Sem 1','Sem 2','Sem 3','Sem 4'],
+      datasets: [
+        { label:'Envoyés', data: d.prospection.emailsWeekly, backgroundColor:'rgba(131,56,236,.6)', borderRadius:4 },
+        { label:'Ouverts', data: d.prospection.opensWeekly, backgroundColor:'rgba(46,196,182,.6)', borderRadius:4 },
+        { label:'Clics', data: d.prospection.clicksWeekly, backgroundColor:'rgba(244,162,97,.6)', borderRadius:4 }
+      ]
+    },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ labels:{ color:tickColor } } }, scales }
+  });
+
+  // Leads par département
+  mkChart('chart-depts', {
+    type: 'pie',
+    data: {
+      labels: ['Essonne (91)', 'Val-de-Marne (94)', 'Val-d\'Oise (95)'],
+      datasets: [{ data: Object.values(d.prospection.byDept),
+        backgroundColor: ['#e63946','#f4a261','#8338ec'], borderWidth: 0 }]
+    },
+    options: { responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ position:'right', labels:{ color:tickColor, font:{size:11} } } }
+    }
+  });
+
+  // SAV par type
+  mkChart('chart-sav-type', {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(d.sav.byType),
+      datasets: [{ data: Object.values(d.sav.byType),
+        backgroundColor:['#e63946','#f4a261','#2ec4b6','#8338ec'], borderWidth:0 }]
+    },
+    options: { responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ position:'right', labels:{ color:tickColor, font:{size:11}, boxWidth:12 } } }
+    }
+  });
+
+  // SAV tendance
+  mkChart('chart-sav-trend', {
+    type: 'line',
+    data: {
+      labels: ['Août','Sep','Oct','Nov','Déc','Jan'],
+      datasets: [
+        { label:'Ouverts', data: d.sav.monthly.open, borderColor:'#e63946', backgroundColor:'rgba(230,57,70,.1)', fill:true, tension:.4, pointRadius:4 },
+        { label:'Résolus', data: d.sav.monthly.resolved, borderColor:'#2ecc71', backgroundColor:'rgba(46,204,113,.1)', fill:true, tension:.4, pointRadius:4 }
+      ]
+    },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ labels:{ color:tickColor } } }, scales }
+  });
+
+  // Contrats par type
+  mkChart('chart-con-type', {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(d.contrats.byType),
+      datasets: [{ data: Object.values(d.contrats.byType),
+        backgroundColor:['#e63946','#2ec4b6','#f4a261','#8338ec'], borderWidth:0 }]
+    },
+    options: { responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ position:'right', labels:{ color:tickColor, font:{size:11}, boxWidth:12 } } }
+    }
+  });
+
+  // Échéances contrats
+  mkChart('chart-con-echeance', {
+    type: 'bar',
+    data: {
+      labels: d.contrats.echeances.mois,
+      datasets: [{ label:'Contrats à renouveler', data: d.contrats.echeances.nb,
+        backgroundColor:['rgba(230,57,70,.8)','rgba(244,162,97,.8)','rgba(46,204,113,.7)'], borderRadius:6 }]
+    },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false} }, scales }
+  });
+}
+
+// ══════════════════════════════════════
+//  UTILITIES
+// ══════════════════════════════════════
+function setText(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+function setHtml(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = val;
+}
+
+function showTab(name, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(name).classList.add('active');
+  var tabEl = el ? (el.classList.contains('tab') ? el : el.closest('.tab')) : null;
+  if (tabEl) tabEl.classList.add('active');
+}
+
+function saveConfig() {
+  cfg.sheetId = document.getElementById('cfg-sheet-id').value;
+  cfg.apiKey = document.getElementById('cfg-api-key').value;
+  cfg.sheetDevis = document.getElementById('cfg-sheet-devis').value;
+  cfg.sheetContrats = document.getElementById('cfg-sheet-contrats').value;
+  cfg.sheetSav = document.getElementById('cfg-sheet-sav').value;
+  cfg.n8nUrl = document.getElementById('cfg-n8n-url').value;
+  cfg.objCa = parseInt(document.getElementById('cfg-obj-ca').value) || 15000;
+  cfg.seuilTickets = parseInt(document.getElementById('cfg-seuil-tickets').value) || 3;
+  cfg.refresh = parseInt(document.getElementById('cfg-refresh').value);
+  Object.entries({ sp_sheetId: cfg.sheetId, sp_apiKey: cfg.apiKey, sp_sheetDevis: cfg.sheetDevis,
+    sp_sheetContrats: cfg.sheetContrats, sp_sheetSav: cfg.sheetSav, sp_n8nUrl: cfg.n8nUrl,
+    sp_objCa: cfg.objCa, sp_seuilTickets: cfg.seuilTickets, sp_refresh: cfg.refresh
+  }).forEach(([k,v]) => localStorage.setItem(k, v));
+  setupRefresh();
+  refreshAll();
+  alert('✅ Configuration sauvegardée !');
+}
+
+function loadConfigUI() {
+  document.getElementById('cfg-sheet-id').value = cfg.sheetId;
+  document.getElementById('cfg-api-key').value = cfg.apiKey;
+  document.getElementById('cfg-sheet-devis').value = cfg.sheetDevis;
+  document.getElementById('cfg-sheet-contrats').value = cfg.sheetContrats;
+  document.getElementById('cfg-sheet-sav').value = cfg.sheetSav;
+  document.getElementById('cfg-n8n-url').value = cfg.n8nUrl;
+  document.getElementById('cfg-obj-ca').value = cfg.objCa;
+  document.getElementById('cfg-seuil-tickets').value = cfg.seuilTickets;
+  document.getElementById('cfg-refresh').value = cfg.refresh;
+}
+
+async function refreshAll() {
+  setText('last-update', 'Actualisation...');
+  const d = await fetchAllData();
+  renderAlerts(d);
+  renderOverview(d);
+  renderCommercial(d);
+  renderProspection(d);
+  renderSav(d);
+  renderContrats(d);
+  renderCharts(d);
+  setText('last-update', 'Màj : ' + new Date().toLocaleTimeString('fr-FR'));
+}
+
+function setupRefresh() {
+  if (refreshTimer) clearInterval(refreshTimer);
+  if (cfg.refresh > 0) refreshTimer = setInterval(refreshAll, cfg.refresh);
+}
+
+// ══════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════
+loadConfigUI();
+refreshAll();
+setupRefresh();
+</script>
+</body>
+</html>
